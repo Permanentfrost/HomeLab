@@ -339,3 +339,14 @@ If you are removing the IP from a certain jail’s whitelist, you can use this c
 fail2ban-client set <JAIL_NAME> delignoreip <IP_Address>
 If you want to permanently remove the IP, you should edit the /etc/fail2ban/jail.local file.
 </details>
+
+<details> 
+<summary> General Tipps </summary>
+
+  ### Bluetooth 
+- sudo systemctl status bluetooth
+- sudo systemctl stop bluetooth
+- sudo systemctl disable bluetooth
+
+
+</details>
