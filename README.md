@@ -6,7 +6,9 @@ All Code / Write-ups and Documentation related to homelab setups.
 2.Track learning progress. 
 
 <details>
-<summary># SSH Hardening </summary>
+<summary> # SSH Hardening </summary>
+
+# SSH Hardening
 ## Fail2Ban
 install Fail2Ban with this command 
 sudo apt install fail2ban
@@ -133,8 +135,9 @@ You should also keep the SSH install and system updated.
 
 </details>
 
-
-## Fail2Ban DetailInstall
+<details> 
+<summary> Fail2Ban DetailInstall </summary>
+## Fail2Ban Detailierte Anleitung
 
 Install Fail2Ban on Ubuntu & Debian
 
@@ -335,3 +338,4 @@ If you are removing the IP from a certain jail’s whitelist, you can use this c
 
 fail2ban-client set <JAIL_NAME> delignoreip <IP_Address>
 If you want to permanently remove the IP, you should edit the /etc/fail2ban/jail.local file.
+</details>
