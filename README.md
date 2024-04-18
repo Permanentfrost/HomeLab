@@ -5,7 +5,8 @@ All Code / Write-ups and Documentation related to homelab setups.
 1.Learning About Networks, SysAdmin etc. 
 2.Track learning progress. 
 
-# SSH Hardening
+<details>
+<summary># SSH Hardening </summary>
 ## Fail2Ban
 install Fail2Ban with this command 
 sudo apt install fail2ban
@@ -129,6 +130,9 @@ sshd -T
 This way, you can easily see if you need to change any parameter to enhance the security of the SSH server.
 
 You should also keep the SSH install and system updated.
+
+</details>
+
 
 ## Fail2Ban DetailInstall
 
