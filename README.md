@@ -350,3 +350,6 @@ If you want to permanently remove the IP, you should edit the /etc/fail2ban/jail
 
 
 </details>
+
+### Temperature Management 
+Display: Ubuntu Server /sys/class/thermal/thermal_zone0$ cat temp --> shows in centigrade
