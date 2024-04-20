@@ -116,7 +116,24 @@ When you have this setup, you can disable password based SSH login. Now, only th
 
 Before you go for this approach, make sure that you have added your own public key to the server and it works. Otherwise, you’ll lock yourself out and may lose access to the remote server specially if you are using a cloud server like Linode where you don’t have physical access to the server.
 
-Read this detailed tutorial to learn how to disable password based SSH authentication.
+**Before disabling ssh password authentication please make sure your access with private key works as expected. Once confirmed, you can disable password authentication.**
+
+Edit file with: `sudo nano /etc/ssh/sshd_config`
+
+Please make sure you have following values enabled in the file:
+
+`PermitRootLogin no`
+
+`PasswordAuthentication no`
+
+`ChallengeResponseAuthentication no`
+
+`UsePAM no`
+
+Save file and then restart ssh service
+`sudo service ssh restart`
+or
+`sudo systemctl restart ssh`
 
 ### 10. Two-factor authentication with SSH
 
