@@ -1,9 +1,61 @@
 # raspberry
 All Code / Write-ups and Documentation related to homelab setups. 
 
-# Why? 
+**Why?**  
 1.Learning About Networks, SysAdmin etc. 
 2.Track learning progress. 
+3. Eventually publish it so others benefit. 
+
+<details>
+<summary> # Proxmox Hardening </summary>
+
+  **Host Security:** 
+  
+-Cluster not reachable by Outside
+  
+-Fail2Ban with Monitoring and Email Alerts
+
+-Encrypted Hosts with Luks
+
+-Encrypted Swap
+
+-IP based Access Control
+
+-Behind a Pfsense Firewall
+
+-2FA for each User
+
+**VM Security:**
+
+-Vlan for each critical VM / non Critical VMs are based in Application grouped Vlans
+
+-Fail2Ban with Monitoring and Email Alerts
+
+-Encrypted VM
+
+-VMs dont have any Networkstorage (only the ve host provides Storage)
+
+-Custom Ports
+
+-Behind a pfsense Firewall
+
+-Swap Encryption
+
+-Services get published by haproxy with another Layer of Access control
+
+**Backup Security:**
+
+-No unencrypted Backups
+
+-Backups are never stored on the same site as the encryption key
+
+-Coldstorage Backups perfromed weekly
+
+-Off-site Backups are performed encrypted and protected against Changes
+
+
+  
+</details>
 
 <details>
 <summary> # SSH Hardening </summary>
