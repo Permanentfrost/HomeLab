@@ -427,7 +427,7 @@ Display: Ubuntu Server /sys/class/thermal/thermal_zone0$ cat temp --> shows in c
 
 mpstat per processor utilization
 
-vmstat processs, CPU, memory statistics
+vmstat processs, CPU, memory statistics (two arguments: NR of secs to monitor, AMT of reports) 
 
 also: `sar -n DEV 30 2`
 
