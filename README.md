@@ -423,13 +423,26 @@ If you want to permanently remove the IP, you should edit the /etc/fail2ban/jail
 **Temperature Management**
 Display: Ubuntu Server /sys/class/thermal/thermal_zone0$ cat temp --> shows in centigrade
 
-<details> 
-<summary>User Mgt</summary>
+**Common Parameters**
 
-**user deletion incl. homefolder**
+mpstat per processor utilization
+
+vmstat processs, CPU, memory statistics
+
+also: `sar -n DEV 30 2`
+
+#### sysdig
+
+Container-Aware kernel Monitoring 
+
+<details> 
+<summary>User Management</summary>
+
+##### user deletion incl. homefolder
+
 cat /etc/passwd | cut -d: -f1
 
-Explanation 
+**Explanation**
 
 cat: Displays the contents of a file.
 /etc/passwd: Path of the passwd file that contains user information.
@@ -438,7 +451,7 @@ cut: Extracts parts of lines from a file or piped data.
 d:: Specifies colon (“:”) as a delimiter.
 f1: Specifies a field. Here number 1 means the first field.
 
-Now: sudo deluser --remove-home myuser
+Now: `sudo deluser --remove-home myuser`
 
 
 </details>
