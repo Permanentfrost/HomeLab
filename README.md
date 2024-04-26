@@ -455,3 +455,10 @@ Now: `sudo deluser --remove-home myuser`
 
 
 </details>
+
+
+### Local Encryption via GnuPG
+1. Generate Keys via `gpg --full-generate-key`
+2. encrypt the file as follow `gpg -se -r username FILE`
+3. decrypt `gpg -se -r username FILE` then `>` into another doc
+   
