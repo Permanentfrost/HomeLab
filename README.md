@@ -1,8 +1,9 @@
-# raspberry
+# HomeLab Best-practices and Guide
 All Code / Write-ups and Documentation related to homelab setups. 
 
+## Proxmox
 <details>
-<summary> # Proxmox Hardening </summary>
+<summary> # Hardening Guide </summary>
 
   **Host Security:** 
   
@@ -55,45 +56,43 @@ All Code / Write-ups and Documentation related to homelab setups.
 <details>
 <summary> # SSH Hardening </summary>
 
-# SSH Hardening
-## Fail2Ban
+### SSH Hardening
+
+##### Fail2Ban Install
+
 install Fail2Ban with this command 
-sudo apt install fail2ban
+`sudo apt install fail2ban`
 
+Navigate to `/etc/fail2ban/jail.conf`
 
-### /etc/fail2ban/jail.conf
-This is where all the magic happens. This is the file where you can configure things like default ban time, number of reties before banning an IP, whitelisting IPs, mail sending information etc. Basically you control the behavior of Fail2Ban from this file.
-----
+This is where all the **magic** happens. This is the file where you can configure things like default ban time, number of retries before banning an IP, whitelisting IPs, mail sending information etc. --> Basically you control the behavior of Fail2Ban from this file.
 
-### Do not go and blindly follow all the SSH hardening tips mentioned here. Read all of them and then see which ones fit your need. Also keep in mind that some tips might not be compatible with others.
+**Note:** If you disable the password based SSH login, you may not need to go for Fail2Ban. 
 
-For example, if you disable the password based SSH login, there is no need to go for Fail2Ban kind of solution.
-
-If you are aware of SSH basics, you know that the SSH configuration files are located at /etc/ssh/sshd_config.
+The SSH configuration files are located at `/etc/ssh/sshd_config.`
 
 Most of the SSH hardening tips mentioned here will require you to edit this config file. This is why it will be a good idea to back up the original file. You’ll also need to restart the SSH service if you make any changes to the SSH config file.
 
 Let’s see what steps you can take to secure your SSH server.
 
-### 1. Disable empty passwords
+###### 1. Disable empty passwords
 
 Yes. It is possible to have user accounts in Linux without any passwords. If those users try to use SSH, they won’t need passwords for accessing the server via SSH as well.
 
-That’s a security risk. You should forbid the use of empty passwords. In the /etc/ssh/sshd_config file, make sure to set PermitEmptyPasswords option to no.
+That’s a security risk. You should forbid the use of empty passwords. In the /etc/ssh/sshd_config file, make sure to set `PermitEmptyPasswords` option to no.
 
-PermitEmptyPasswords no
-### 2. Change default SSH ports
+###### 2. Change default SSH ports
 
 The default SSH port is 22 and most of the attack scripts check are written around this port only. Changing the default SSH port should add an additional security layer because the number of attacks (coming to port 22) may reduce.
 
 Search for the port information in the config file and change it to something different:
 
-Port 2345
+Example: Port 2345
 You must remember or note down the port number otherwise you may also not access your servers with SSH.
 
-### 3. Disable root login via SSH
+###### 3. Disable root login via SSH
 
-To be honest, using server as root itself should be forbidden. It is risky and leaves no audit trail. Mechanism like sudo exist for this reason only.
+To be honest, using server as root itself should be forbidden (By Default deactivated in UBUNTU). It is risky and leaves no audit trail. Mechanism like sudo exist for this reason only.
 
 If you have sudo users added on your system, you should use that sudo user to access the server via SSH instead of root.
 
@@ -101,14 +100,15 @@ You can disable the root login by modifying the PermitRootLogin option and setti
 
 PermitRootLogin no
 
-### 4. Disable ssh protocol 1
+###### 4. Disable ssh protocol 1
 
 This is if you are using an older Linux distribution. Some older SSH version might still have SSH protocol 1 available. This protocol has known vulnerabilities and must not be used.
 
 Newer SSH versions automatically have SSH protocol 2 enabled but no harm in double checking it.
 
 Protocol 2
-### 5. Configure idle timeout interval
+
+###### 5. Configure idle timeout interval
 
 The idle timeout interval is the amount of time an SSH connection can remain active without any activity. Such idle sessions are also a security risk. It is a good idea to configure idle timeout interval.
 
@@ -120,7 +120,8 @@ After this interval, the SSH server will send an alive message to the client. If
 You may also control how many times it sends the alive message before disconnecting:
 
 ClientAliveCountMax 2
-### 6. Allow SSH access to selected users only
+
+###### 6. Allow SSH access to selected users only
 
 When it comes to security, you should follow the principal of least privilege. Don’t give rights when it is not required.
 
@@ -134,7 +135,7 @@ You may also add selected users to a new group and allow only this group to acce
 AllowGroups ssh_group
 You may also use the DenyUsers and DenyGroups to deny SSH access to certain users and groups.
 
-### 7. Disable X11 Forwarding
+###### 7. Disable X11 Forwarding
 
 The X11 or the X display server is the basic framework for a graphical environment. The X11 forwarding allows you to use a GUI application via SSH.
 
@@ -143,7 +144,8 @@ Basically, the client runs the GUI application on the server but thanks to X11 f
 The X11 protocol is not security oriented. If you don’t need it, you should disable the X11 forwarding in SSH.
 
 X11Forwarding no
-### 8. Mitigate brute force attacks automatically
+
+###### 8. Mitigate brute force attacks automatically
 
 To thwart SSH bruteforce attacks, you can use a security tool like Fail2Ban.
 
@@ -151,7 +153,7 @@ Fail2Ban checks the failed login attempts from different IP addresses. If these 
 
 You can configure all these parameters as per your liking and requirement. I have written a detailed introductory guide on using Fail2Ban which you should read.
 
-### 9. Disable password based SSH login
+###### 9. Disable password based SSH login
 
 No matter how much you try, you’ll always see bad login attempts via SSH on your Linux server. The attackers are smart and the scripts they use often take care of the default settings of Fail2Ban like tools.
 
@@ -163,26 +165,30 @@ When you have this setup, you can disable password based SSH login. Now, only th
 
 Before you go for this approach, make sure that you have added your own public key to the server and it works. Otherwise, you’ll lock yourself out and may lose access to the remote server specially if you are using a cloud server like Linode where you don’t have physical access to the server.
 
-**Before disabling ssh password authentication please make sure your access with private key works as expected. Once confirmed, you can disable password authentication.**
+> [!WARNING]
+> Before disabling ssh password authentication. Make sure your access with private key works as expected. Once confirmed, disable password authentication.
+
 
 Edit file with: `sudo nano /etc/ssh/sshd_config`
 
 Please make sure you have following values enabled in the file:
 
-`PermitRootLogin no`
+```
+PermitRootLogin no
 
-`PasswordAuthentication no`
+PasswordAuthentication no
 
-`ChallengeResponseAuthentication no`
+ChallengeResponseAuthentication no
 
-`UsePAM no`
+UsePAM no
+```
 
 Save file and then restart ssh service
 `sudo service ssh restart`
 or
 `sudo systemctl restart ssh`
 
-### 10. Two-factor authentication with SSH
+###### 10. Two-factor authentication with SSH
 
 To take SSH security to the next level, you may also enable two-factor authentication. In this approach, you receive a one-time password on your mobile phone, email or through a third-party aunthentication app.
 
@@ -231,7 +237,7 @@ Now let’s understand the jail.conf file. If you use the less command to read t
 The jail.conf file is divided into services. There is a [Default] section and it applies to all services. And then you can see various services with their respective settings (if any). All these services are in brackets. You’ll see sections like [sshd], [apache-auth], [squid] etc.
 
 If I remove the comments, the default section looks like this:
-
+```
 [DEFAULT]
 ignorecommand =
 bantime = 10m
@@ -254,6 +260,9 @@ banaction = iptables-multiport
 banaction_allports = iptables-allports
 action_abuseipdb = abuseipdb
 action = %(action_)s
+```
+
+
 Let me tell you the meaning of some of these parameters.
 
 bantime: Set the length of the ban. Default is 10 minutes.
@@ -278,9 +287,10 @@ Note that you need to be root user or have sudo access to run the fail2ban comma
 Enable Fail2Ban on your server and check all running jails
 
 You can use systemd commands to start and enable Fail2Ban on your Linux server:
-
+```
 systemctl start fail2ban
 systemctl enable fail2ban
+```
 Once Fail2Ban is enabled, you can see the status and the active jails with fail2ban-client command:
 
 fail2ban-client status
@@ -292,7 +302,7 @@ In case you were wondering, sshd jail is enabled by default.
 See Fail2Ban log
 
 Fail2Ban log is located at /var/log/fail2ban.log. The log files are in the following format:
-
+```
 2019-03-25 07:09:08,004 fail2ban.filter [25630]: INFO [sshd] Found 139.59.69.76 – 2019-03-25 07:09:07
 2019-03-25 07:09:36,756 fail2ban.filter [25630]: INFO [sshd] Found 159.89.205.213 – 2019-03-25 07:09:36
 2019-03-25 07:09:36,757 fail2ban.filter [25630]: INFO [sshd] Found 159.89.205.213 – 2019-03-25 07:09:36
@@ -303,6 +313,7 @@ Fail2Ban log is located at /var/log/fail2ban.log. The log files are in the follo
 2019-03-25 07:09:37,247 fail2ban.filter [25630]: INFO [sshd] Found 112.64.214.90 – 2019-03-25 07:09:37
 2019-03-25 07:09:37,248 fail2ban.filter [25630]: INFO [sshd] Found 112.64.214.90 – 2019-03-25 07:09:37
 2019-03-25 07:09:37,589 fail2ban.actions [25630]: NOTICE [sshd] Ban 112.64.214.90
+```
 You can see that it identifies the IPs and bans them when they cross the threshold of maximum retry.
 
 See banned IPs by Fail2Ban
