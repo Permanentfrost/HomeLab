@@ -484,8 +484,48 @@ so in our example to make the file travelItaly.txt readable for **all** we could
 Result: 
 `-rwxrwxrwx  1 user group   10 Apr 26 22:06 travelItaly.txt`
 
+> [!TIP]
+> Using Octal Notation is much faster.
+
+```
+Binary	Octal	Permission
+000	0	—
+001	1	–x
+010	2	-w-
+011	3	-wx
+100	4	r–
+101	5	r-x
+110	6	rw-
+111	7	rwx
+
+Example: chmod 600 = (rw-------)
+Example: chmod 664 = (rw-rw-r--)
+Example: chmod 777 = (rwxrwxrwx)
+```
+
+
 **chown** 
 
 
+
+
+
+
+
+
+> [!NOTE]
+> Useful information that users should know, even when skimming content.
+
+> [!TIP]
+> Helpful advice for doing things better or more easily.
+
+> [!IMPORTANT]
+> Key information users need to know to achieve their goal.
+
+> [!WARNING]
+> Urgent info that needs immediate user attention to avoid problems.
+
+> [!CAUTION]
+> Advises about risks or negative outcomes of certain actions.
 
 
