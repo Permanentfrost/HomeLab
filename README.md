@@ -464,11 +464,30 @@ Now: `sudo deluser --remove-home myuser`
    
 ### chmod and chown 
 
-Let's say we have example-file `travel_Italy.txt`
-Starting Point `-rw-rw-r-- 1 user user 1.2K Apr 25 22:18 travelItaly.txt`
+Let's say we have example-file and directory below: 
+
+-File: `-rw-rw-r-- 1 user group 1.2K Apr 25 22:18 travelItaly.txt`
+
+-Directory `drwxrwxr-x  2 user group 4.0K Apr 26 22:15 exampleItaly`
+
+File Type `d`	User `rwx`	Group	`rwx` Global `r-x`
 
 **chmod** 
 
+Basic Syntax would be `chmod WHO[+,-,=]PERMISSIONS FILENAME`
+
+Whereby `WHO` could be
+```
+u	= user
+g	= group
+o	= others
+a	= all
+```
+
+so in our example to make the file travelItaly.txt readable for **all** we could write `chmod a+rwx travelItaly.txt `
+
+Result: 
+`-rwxrwxrwx  1 user group   10 Apr 26 22:06 travelItaly.txt`
 
 **chown** 
 
