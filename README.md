@@ -462,3 +462,15 @@ Now: `sudo deluser --remove-home myuser`
 2. encrypt the file as follow `gpg -se -r username FILE`
 3. decrypt `gpg -se -r username FILE` then `>` into another doc
    
+### chmod and chown 
+
+Let's say we have example-file `travel_Italy.txt`
+
+**chmod** 
+
+
+**chown** 
+
+
+
+
