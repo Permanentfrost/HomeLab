@@ -465,6 +465,7 @@ Now: `sudo deluser --remove-home myuser`
 ### chmod and chown 
 
 Let's say we have example-file `travel_Italy.txt`
+Starting Point `-rw-rw-r-- 1 user user 1.2K Apr 25 22:18 travelItaly.txt`
 
 **chmod** 
 
