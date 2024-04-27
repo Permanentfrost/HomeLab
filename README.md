@@ -3,7 +3,7 @@ All Code / Write-ups and Documentation related to homelab setups.
 
 ## Proxmox
 <details>
-<summary> # Hardening Guide </summary>
+<summary> Hardening Guide </summary>
 
   **Host Security:** 
   
@@ -53,8 +53,32 @@ All Code / Write-ups and Documentation related to homelab setups.
   
 </details>
 
+<details> 
+<summary> rsyslog server </summary>
+
+##### Setting up a Pi rsyslog server 
+
+The Raspberry in question needs to have a static IP so that the TARGET is clear. 
+
+If not installed make sure it is from `sudo apt install rsyslog`
+
+Make sure raspberry listens on Port 514 `sudo nano /etc/rsyslog.conf`
+You can do this by uncommenting these lines 
+```
+module(load="imudp")
+input(type="imudp" port="514")
+
+module(load="imtcp")
+input(type="imtcp" port="514")
+```
+Placeholder--> Both Protocols? Security Risk? Why does the sender need an ACK ? 
+
+
+
+</details>
+
 <details>
-<summary> # SSH Hardening </summary>
+<summary> SSH Hardening </summary>
 
 ### SSH Hardening
 
