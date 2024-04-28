@@ -116,10 +116,11 @@ The Raspberry Pi will start receiving the log messages from the device and start
 
 How to Point towards syslog server
 
-Config File
+Edit the rsyslog Config File located in `/etc/rsyslog.conf` which also relates to `/etc/rsyslog.d/50-default.conf` 
+
 ```
 # this is the simplest forwarding action:
-*.* action(type="omfwd" target="192.X.X.X" port="514" protocol="tcp")
+# *.* action(type="omfwd" target="192.X.X.X" port="514" protocol="tcp")
 # it is equivalent to the following obsolete legacy format line:
 *.* @@192.0.2.1:10514 # do NOT use this any longer!
 # Note: if the remote system is unreachable, processing will block here
@@ -134,7 +135,7 @@ Config File
 # undeliverable.
 # the rest below is more or less a plain vanilla rsyslog.conf as 
 # many distros ship it - it's more for your reference...
-# Log anything (except mail) of level info or higher.
+# Log anything (except mail) of level info or higher. 
 # Don't log private authentication messages!
 *.info;mail.none;authpriv.none;cron.none      /var/log/messages
 # The authpriv file has restricted access.
@@ -151,8 +152,12 @@ uucp,news.crit                                /var/log/spooler
 local7.*                                      /var/log/boot.log
 
 ```
+By the way: 
+```
+authpriv – non-system authorization messages
 
-
+auth - authentication and authorization related commands
+```
 
 
 ###### Encrypting the Log Traffic
