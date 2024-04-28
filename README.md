@@ -58,6 +58,8 @@ All Code / Write-ups and Documentation related to homelab setups.
 
 ##### Setting up a Pi rsyslog server 
 
+###### Target
+
 The Raspberry in question needs to have a static IP so that the TARGET is clear. 
 
 If not installed make sure it is from `sudo apt install rsyslog`
@@ -107,7 +109,56 @@ if $fromhost-ip startswith "192.168.0.1" then -?routerlog
 
 Then restart the rsyslog service with `sudo systemctl restart rsyslog`
 
-Note: Now enable the syslog protocol on the device you are using and point it towards your Raspberry Pi’s IP. The Raspberry Pi will start receiving the log messages from the device and start saving them to the log file you specified for that template.
+###### Sender
+
+Note: Now enable the syslog protocol on the device you are using and point it towards your Raspberry Pi’s IP. 
+The Raspberry Pi will start receiving the log messages from the device and start saving them to the log file you specified for that template.
+
+How to Point towards syslog server
+
+Config File
+```
+# this is the simplest forwarding action:
+*.* action(type="omfwd" target="192.X.X.X" port="514" protocol="tcp")
+# it is equivalent to the following obsolete legacy format line:
+*.* @@192.0.2.1:10514 # do NOT use this any longer!
+# Note: if the remote system is unreachable, processing will block here
+# and discard messages after a while
+# so a better use is
+*.*  action(type="omfwd" target="192.X.X.X" port="514" protocol="tcp"
+            action.resumeRetryCount="100"
+            queue.type="linkedList" queue.size="10000")
+# this will de-couple the sending from the other logging actions,
+# and prevent delays when the remote system is not reachable. Also,
+# it will try to connect 100 times before it discards messages as
+# undeliverable.
+# the rest below is more or less a plain vanilla rsyslog.conf as 
+# many distros ship it - it's more for your reference...
+# Log anything (except mail) of level info or higher.
+# Don't log private authentication messages!
+*.info;mail.none;authpriv.none;cron.none      /var/log/messages
+# The authpriv file has restricted access.
+authpriv.*                                    /var/log/secure
+# Log all the mail messages in one place.
+mail.*                                        /var/log/maillog
+# Log cron stuff
+cron.*                                        /var/log/cron
+# Everybody gets emergency messages
+*.emerg                                       :omusrmsg:*
+# Save news errors of level crit and higher in a special file.
+uucp,news.crit                                /var/log/spooler
+# Save boot messages also to boot.log
+local7.*                                      /var/log/boot.log
+
+```
+
+
+
+
+###### Encrypting the Log Traffic
+
+
+
 
 </details>
 
