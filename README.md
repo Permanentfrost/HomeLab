@@ -545,6 +545,10 @@ Example: chmod 777 = (rwxrwxrwx)
 
 
 
+ 
+<details> 
+
+<summary> Writeup Help </summary>
 
 
 
@@ -562,5 +566,13 @@ Example: chmod 777 = (rwxrwxrwx)
 
 > [!CAUTION]
 > Advises about risks or negative outcomes of certain actions.
+
+
+
+
+</details>
+
+
+
 
 
