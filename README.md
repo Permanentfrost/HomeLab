@@ -54,6 +54,16 @@ All Code / Write-ups and Documentation related to homelab setups.
 </details>
 
 <details> 
+ <summary> Obtain SSL Certificates </summary>
+
+##### SSL Certificate with Let's Encrypt
+
+Alternative Make your own Certificate
+
+
+</details>
+
+<details> 
 <summary> rsyslog server </summary>
 
 ##### Setting up a Pi rsyslog server 
@@ -162,7 +172,9 @@ auth - authentication and authorization related commands
 
 ###### Encrypting the Log Traffic
 
+Like many things, this works via TLS(SSL) Certificate. Therefore this is needed. Check this part of the Repo/Github Page. 
 
+To be completed with info from `https://www.rsyslog.com/doc/tutorials/tls.html`
 
 
 </details>
