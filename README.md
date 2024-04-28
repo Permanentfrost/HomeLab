@@ -91,12 +91,23 @@ To route the syslog messages to our new template, we need to do some extra confi
 
 For this, we are going to utilize the following lines.
 
-You will need to swap out “IPADDRESSTOUSE” with the IP of the device you are expecting to receive the syslog messages from.
+You will need to swap out “IPADDRESSTOUSE” with the IP of the device you are expecting to receive the syslog messages **from**.
 
 Additionally, you will need to also swap out “templatename” with the name you specified in the previous step.
 
 `if $fromhost-ip startswith "IPADDRESSTOUSE" then -?templatename & stop`
 
+Example File: 
+```
+$template routerlog, "/var/log/router.log"
+
+if $fromhost-ip startswith "192.168.0.1" then -?routerlog
+& stop
+```
+
+Then restart the rsyslog service with `sudo systemctl restart rsyslog`
+
+Note: Now enable the syslog protocol on the device you are using and point it towards your Raspberry Pi’s IP. The Raspberry Pi will start receiving the log messages from the device and start saving them to the log file you specified for that template.
 
 </details>
 
