@@ -73,9 +73,35 @@ input(type="imtcp" port="514")
 ```
 Placeholder--> Both Protocols? Security Risk? Why does the sender need an ACK ? 
 
+Template Creation
+
+Now we need to create a template. This template tells syslog where to route the messages it’s receiving. For this, you will need to know your device’s **static** IP address.
+
+Create a config file within the `/etc/rsyslog.d` directory. Any config file we write within this directory will be read automatically by **rsyslog** when we restart it.
+Within this file, we will define a new template. Additionally, we will also need to specify some configuration to route syslog messages to our new log file.
+For this example, we will call this file `pimylifeupRouterLog.conf`. You can give this file any name you want, but it must end in `.conf`.
+
+Therefore just: `sudo nano /etc/rsyslog.d/pimylifeupRouterLog.conf`
+
+Within this file, we need to enter some new lines. A template utilizes the following format and tells the syslog server where to save the logs to.
+
+`$template NameForTemplate, "DirectoryWhereLogIs/logName.log`
+
+To route the syslog messages to our new template, we need to do some extra configuration.
+
+For this, we are going to utilize the following lines.
+
+You will need to swap out “IPADDRESSTOUSE” with the IP of the device you are expecting to receive the syslog messages from.
+
+Additionally, you will need to also swap out “templatename” with the name you specified in the previous step.
+
+`if $fromhost-ip startswith "IPADDRESSTOUSE" then -?templatename & stop`
 
 
 </details>
+
+
+
 
 <details>
 <summary> SSH Hardening </summary>
