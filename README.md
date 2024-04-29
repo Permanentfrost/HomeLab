@@ -1,11 +1,25 @@
 # HomeLab Best-practices and Guide
 All Code / Write-ups and Documentation related to homelab setups. 
 
-## Proxmox
+## General Linux Tips 
+
+#### System Infos and Diagnostics
+
+#### User Rights Management
+
+
+## Networking 
+
+### IP Addresses 
+
+### Subnetting 
+
+
+## Proxmox Setup
 <details>
 <summary> Hardening Guide </summary>
 
-  **Host Security:** 
+ #### Host Security
   
 -Cluster not reachable by Outside
   
