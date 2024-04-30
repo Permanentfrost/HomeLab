@@ -7,6 +7,11 @@ All Code / Write-ups and Documentation related to homelab setups.
 
 #### User Rights Management
 
+#### Misc Controlls CLI
+
+##### Grep and Pipe
+
+
 
 ## Networking 
 
@@ -14,6 +19,11 @@ All Code / Write-ups and Documentation related to homelab setups.
 
 ### Subnetting 
 
+### VLAN Setup 
+
+Consider the caveats and ask whether this is really necessary. 
+
+### pfsense Setup 
 
 ## Proxmox Setup
 <details>
