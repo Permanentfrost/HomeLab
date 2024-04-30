@@ -90,7 +90,26 @@ First: Consider the caveats and ask whether this is really necessary or if there
 
 ##### SSL Certificate with Let's Encrypt
 
-Alternative Make your own Certificate
+You don’t want to see certificate warnings all the time. How do you get the green lock locally?
+
+**Solution**
+
+Generate your own certificate, either self-signed or signed by a local root, and trust it in your operating system’s trust store. Then use that certificate in your local web server. See below for details. Anyone can make their own certificates without help from a CA. The only difference is that certificates you make yourself **won’t be trusted by anyone else**. For local development, that’s fine.
+
+The simplest way to generate a private key and self-signed certificate for localhost is with this openssl command:
+
+```
+openssl req -x509 -out localhost.crt -keyout localhost.key \
+  -newkey rsa:2048 -nodes -sha256 \
+  -subj '/CN=localhost' -extensions EXT -config <( \
+   printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+```
+
+You can then configure your local web server with `localhost.crt` and `localhost.key`, and install `localhost.crt` in your list of locally trusted roots.
+
+If you want a little more realism in your development certificates, you can use minica to generate your own local root certificate, and issue end-entity (aka leaf) certificates signed by it. You would then import the root certificate rather than a self-signed end-entity certificate.
+
+You can also choose to use a domain with dots in it, like www.localhost, by adding it to /etc/hosts as an alias to 127.0.0.1. This subtly changes how browsers handle cookie storage.
 
 
 </details>
