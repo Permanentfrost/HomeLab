@@ -106,13 +106,37 @@ openssl req -x509 -out localhost.crt -keyout localhost.key \
 ```
 
 You can then configure your local web server with `localhost.crt` and `localhost.key`, and install `localhost.crt` in your list of locally trusted roots.
+If you want a little more realism in your development certificates, you can use minica to generate your own local root certificate, and issue end-entity (aka leaf) certificates signed by it. You would then import the root certificate rather than a self-signed end-entity certificate. You can also choose to use a domain with dots in it, like `www.localhost`, by adding it to `/etc/hosts` as an alias to `127.0.0.1`. This subtly changes how browsers handle cookie storage.
 
-If you want a little more realism in your development certificates, you can use minica to generate your own local root certificate, and issue end-entity (aka leaf) certificates signed by it. You would then import the root certificate rather than a self-signed end-entity certificate.
 
-You can also choose to use a domain with dots in it, like www.localhost, by adding it to /etc/hosts as an alias to 127.0.0.1. This subtly changes how browsers handle cookie storage.
+<details> 
+ 
+ <summary>What do the Commands actually mean?</summary>
 
+1. **openssl**: This is the command-line tool used to perform various cryptographic operations, including generating SSL/TLS certificates.
+
+2. **req**: This subcommand of `openssl` is used for generating certificate signing requests (CSRs) and self-signed certificates.
+
+3. **-x509**: This option specifies that the output should be a self-signed certificate instead of a CSR.
+
+4. **-out localhost.crt**: This option specifies the filename for the output self-signed certificate. In this case, it's named `localhost.crt`.
+
+5. **-keyout localhost.key**: This option specifies the filename for the private key associated with the generated certificate. In this case, it's named `localhost.key`.
+
+6. **-newkey rsa:2048**: This option generates a new RSA key pair with a key size of 2048 bits.
+
+7. **-nodes**: This option specifies that the private key should not be encrypted with a passphrase. This is useful for automated processes or local development where passphrase input is not desired.
+
+8. **-sha256**: This option specifies the hash algorithm to be used for signing the certificate. In this case, it's SHA-256.
+
+9. **-subj '/CN=localhost'**: This option sets the subject of the certificate. The `/CN=localhost` indicates that the Common Name (CN) of the certificate is `localhost`.
+
+10. **-extensions EXT -config <( printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")**: This part is a bit more complex. It configures the certificate extensions, specifically adding a Subject Alternative Name (SAN) for `localhost`, specifying key usage, and extended key usage. The `<(...)` construct allows the output of the `printf` command to be used as input to `openssl`.
 
 </details>
+
+</details>
+
 
 <details> 
 <summary> rsyslog server </summary>
