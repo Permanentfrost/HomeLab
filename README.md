@@ -21,7 +21,15 @@ All Code / Write-ups and Documentation related to homelab setups.
 
 ### VLAN Setup 
 
-Consider the caveats and ask whether this is really necessary. 
+First: Consider the caveats and ask whether this is really necessary or if there is no workaround. The cost (monetary and time) to setup and maintain are really high.    
+
+###### Tagged
+
+###### Untagged
+
+###### Trunks
+
+
 
 ### pfsense Setup 
 
