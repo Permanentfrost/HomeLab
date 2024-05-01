@@ -18,7 +18,7 @@ sudo systemctl disable bluetooth
 ```
 
 
-##### Temperature Management**
+##### Temperature Management
 
 Display: Ubuntu Server `/sys/class/thermal/thermal_zone0$` cat temp --> shows in centigrade
 
