@@ -5,7 +5,111 @@ All Code / Write-ups and Documentation related to homelab setups.
 
 #### System Infos and Diagnostics
 
+<details> 
+<summary> General Tipps </summary>
+
+  ### Bluetooth 
+- sudo systemctl status bluetooth
+- sudo systemctl stop bluetooth
+- sudo systemctl disable bluetooth
+
+
+</details>
+
+**Temperature Management**
+Display: Ubuntu Server /sys/class/thermal/thermal_zone0$ cat temp --> shows in centigrade
+
+**Common Parameters**
+
+mpstat per processor utilization
+
+vmstat processs, CPU, memory statistics (two arguments: NR of secs to monitor, AMT of reports) 
+
+also: `sar -n DEV 30 2`
+
+#### sysdig
+
+Container-Aware kernel Monitoring 
+
+<details> 
+<summary>User Management</summary>
+
+##### user deletion incl. homefolder
+
+cat /etc/passwd | cut -d: -f1
+
+**Explanation**
+
+cat: Displays the contents of a file.
+/etc/passwd: Path of the passwd file that contains user information.
+Pipe(|): Redirects the output of one command into another.
+cut: Extracts parts of lines from a file or piped data.
+d:: Specifies colon (“:”) as a delimiter.
+f1: Specifies a field. Here number 1 means the first field.
+
+Now: `sudo deluser --remove-home myuser`
+
+
+</details>
+
+
+### Local Encryption via GnuPG
+1. Generate Keys via `gpg --full-generate-key`
+2. encrypt the file as follow `gpg -se -r username FILE`
+3. decrypt `gpg -se -r username FILE` then `>` into another doc
+   
+
+
 #### User Rights Management
+
+##### chmod and chown 
+
+Let's say we have example-file and directory below: 
+
+-File: `-rw-rw-r-- 1 user group 1.2K Apr 25 22:18 travelItaly.txt`
+
+-Directory `drwxrwxr-x  2 user group 4.0K Apr 26 22:15 exampleItaly`
+
+File Type `d`	User `rwx`	Group	`rwx` Global `r-x`
+
+**chmod** 
+
+Basic Syntax would be `chmod WHO[+,-,=]PERMISSIONS FILENAME`
+
+Whereby `WHO` could be
+```
+u	= user
+g	= group
+o	= others
+a	= all
+```
+
+so in our example to make the file travelItaly.txt readable for **all** we could write `chmod a+rwx travelItaly.txt `
+
+Result: 
+`-rwxrwxrwx  1 user group   10 Apr 26 22:06 travelItaly.txt`
+
+> [!TIP]
+> Using Octal Notation is much faster.
+
+```
+Binary	Octal	Permission
+000	0	—
+001	1	–x
+010	2	-w-
+011	3	-wx
+100	4	r–
+101	5	r-x
+110	6	rw-
+111	7	rwx
+
+Example: chmod 600 = (rw-------)
+Example: chmod 664 = (rw-rw-r--)
+Example: chmod 777 = (rwxrwxrwx)
+```
+
+
+**chown** 
 
 #### Misc Controlls CLI
 
@@ -619,107 +723,7 @@ fail2ban-client set <JAIL_NAME> delignoreip <IP_Address>
 If you want to permanently remove the IP, you should edit the /etc/fail2ban/jail.local file.
 </details>
 
-<details> 
-<summary> General Tipps </summary>
 
-  ### Bluetooth 
-- sudo systemctl status bluetooth
-- sudo systemctl stop bluetooth
-- sudo systemctl disable bluetooth
-
-
-</details>
-
-**Temperature Management**
-Display: Ubuntu Server /sys/class/thermal/thermal_zone0$ cat temp --> shows in centigrade
-
-**Common Parameters**
-
-mpstat per processor utilization
-
-vmstat processs, CPU, memory statistics (two arguments: NR of secs to monitor, AMT of reports) 
-
-also: `sar -n DEV 30 2`
-
-#### sysdig
-
-Container-Aware kernel Monitoring 
-
-<details> 
-<summary>User Management</summary>
-
-##### user deletion incl. homefolder
-
-cat /etc/passwd | cut -d: -f1
-
-**Explanation**
-
-cat: Displays the contents of a file.
-/etc/passwd: Path of the passwd file that contains user information.
-Pipe(|): Redirects the output of one command into another.
-cut: Extracts parts of lines from a file or piped data.
-d:: Specifies colon (“:”) as a delimiter.
-f1: Specifies a field. Here number 1 means the first field.
-
-Now: `sudo deluser --remove-home myuser`
-
-
-</details>
-
-
-### Local Encryption via GnuPG
-1. Generate Keys via `gpg --full-generate-key`
-2. encrypt the file as follow `gpg -se -r username FILE`
-3. decrypt `gpg -se -r username FILE` then `>` into another doc
-   
-### chmod and chown 
-
-Let's say we have example-file and directory below: 
-
--File: `-rw-rw-r-- 1 user group 1.2K Apr 25 22:18 travelItaly.txt`
-
--Directory `drwxrwxr-x  2 user group 4.0K Apr 26 22:15 exampleItaly`
-
-File Type `d`	User `rwx`	Group	`rwx` Global `r-x`
-
-**chmod** 
-
-Basic Syntax would be `chmod WHO[+,-,=]PERMISSIONS FILENAME`
-
-Whereby `WHO` could be
-```
-u	= user
-g	= group
-o	= others
-a	= all
-```
-
-so in our example to make the file travelItaly.txt readable for **all** we could write `chmod a+rwx travelItaly.txt `
-
-Result: 
-`-rwxrwxrwx  1 user group   10 Apr 26 22:06 travelItaly.txt`
-
-> [!TIP]
-> Using Octal Notation is much faster.
-
-```
-Binary	Octal	Permission
-000	0	—
-001	1	–x
-010	2	-w-
-011	3	-wx
-100	4	r–
-101	5	r-x
-110	6	rw-
-111	7	rwx
-
-Example: chmod 600 = (rw-------)
-Example: chmod 664 = (rw-rw-r--)
-Example: chmod 777 = (rwxrwxrwx)
-```
-
-
-**chown** 
 
 
 
