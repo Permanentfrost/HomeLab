@@ -71,6 +71,8 @@ File Type `d`	User `rwx`	Group	`rwx` Global `r-x`
 
 **chmod** 
 
+The command `chmod` stands for change mode and allows to change the rights of a file. 
+
 Basic Syntax would be `chmod WHO[+,-,=]PERMISSIONS FILENAME`
 
 Whereby `WHO` could be
@@ -107,6 +109,12 @@ Example: chmod 777 = (rwxrwxrwx)
 
 
 **chown** 
+
+The command `chown` stands for change owner and alloss to change the owner and group of a file.
+
+Syntax is `chown USER FILE` whereby `USER` is the **new** user of the file. To assign the group as well use `chown USER:GROUP FILE`
+
+
 
 #### Misc Controlls CLI
 
