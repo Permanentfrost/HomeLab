@@ -130,6 +130,25 @@ also: `sar -n DEV 30 2`
 1. Generate Keys via `gpg --full-generate-key`
 2. encrypt the file as follow `gpg -se -r username FILE`
 3. decrypt `gpg -se -r username FILE` then `>` into another doc
+
+##### crontab
+
+crontab allows for planned execution of commands and scripts. 
+
+`30 1 * * * /path/to/command`
+This means run `/path/to/command` at 1:30 AM every day.
+
+Reminder: The script needs to be made executable `chmod +x script.sh`
+
+To summarize:
+
+```
+first number = minutes.
+The second number = hours.
+The third number = days of the month.
+The fourth number = months.
+The fifth number = days of the week.
+```
    
 #### User Management
 
