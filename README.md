@@ -19,6 +19,32 @@ sudo systemctl disable bluetooth
 
 ##### Backup Management
 
+###### Bootable SD Backup
+
+You can backup directly from the running RasPi onto a SD Card and then boot from there in case the other one fails. 
+
+1.USB SD card device will be located under `/dev`
+
+2.`sda` will be the card
+
+3.`sudo dd bs=4M if=/dev/mmcblk0 of=/dev/sda`
+
+Commands Explained:
+
+`dd` command reads input from a file or a device, and writes it to another file or device
+
+`bs=4M` sets our block size to 4 megabytes
+
+`if=/dev/mmcblk0` sets our input file
+
+`of=/dev/sda` sets our output file
+
+Note: 
+If you listed the devices in the `/dev` folder you probably noticed other partitions named mmcblk0p1 and mmcblk0p2. We want the **entire** SD card and that is why we need to reference mmcblk0. The same goes the the destination sda, you may have seen sda1, sda2,
+
+
+###### HardDrive
+
 
 
 
