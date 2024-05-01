@@ -42,8 +42,7 @@ also: `sar -n DEV 30 2`
 2. encrypt the file as follow `gpg -se -r username FILE`
 3. decrypt `gpg -se -r username FILE` then `>` into another doc
    
-<details> 
-<summary>User Rights Management</summary>
+#### User Management
 
 ##### User deletion incl. homefolder
 
@@ -108,8 +107,6 @@ Example: chmod 777 = (rwxrwxrwx)
 
 
 **chown** 
-
-</details>
 
 #### Misc Controlls CLI
 
