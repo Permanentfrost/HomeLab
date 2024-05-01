@@ -26,8 +26,13 @@ Make sure the `iw` utility tool is installed, if not `sudo apt install iw`. This
 
 Now you can just `iw wlan0 set power_save off`. 
 
-**Note**: This is only temporary. To fix this permantently you could use t
+**Note**: This is only temporary. To fix this permantently you could add the following into the root crontab
 
+`sudo crontab -e`
+which opens the root crontab in your chosen editor and add the following line at the bottom of the root crontab:
+
+`@reboot /usr/sbin/iw wlan0 set power_save off > /home/<user>/power_save_log.txt 2>&1`
+be sure to substitute a valid folder name for `<user>`
 
 ##### Temperature Management
 
