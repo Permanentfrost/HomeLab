@@ -6,30 +6,35 @@ All Code / Write-ups and Documentation related to homelab setups.
 #### System Infos and Diagnostics
 
 <details> 
-<summary> General Tipps </summary>
+<summary> Optimization and Monitoring Tipps </summary>
 
-  ### Bluetooth 
-- sudo systemctl status bluetooth
-- sudo systemctl stop bluetooth
-- sudo systemctl disable bluetooth
+##### Bluetooth
+
+Start and stop the module as follows (power optimization): 
+```
+sudo systemctl status bluetooth
+sudo systemctl stop bluetooth
+sudo systemctl disable bluetooth
+```
 
 
-</details>
+##### Temperature Management**
 
-**Temperature Management**
-Display: Ubuntu Server /sys/class/thermal/thermal_zone0$ cat temp --> shows in centigrade
+Display: Ubuntu Server `/sys/class/thermal/thermal_zone0$` cat temp --> shows in centigrade
 
-**Common Parameters**
+You could create a script to read this centigrade value regularly and use as you like. 
 
-mpstat per processor utilization
+##### Common Parameters
 
-vmstat processs, CPU, memory statistics (two arguments: NR of secs to monitor, AMT of reports) 
+`mpstat` per processor utilization
+
+`vmstat` processs, CPU, memory statistics (two arguments: NR of secs to monitor, AMT of reports) 
+
+`sysdig` provides Container-Aware kernel Monitoring 
 
 also: `sar -n DEV 30 2`
 
-#### sysdig
-
-Container-Aware kernel Monitoring 
+</details>
 
 <details> 
 <summary>User Management</summary>
@@ -728,7 +733,7 @@ If you want to permanently remove the IP, you should edit the /etc/fail2ban/jail
 
 
 
-
+## Writeup Help
  
 <details> 
 
