@@ -135,16 +135,22 @@ also: `sar -n DEV 30 2`
 
 crontab allows for planned execution of commands and scripts. 
 
-`30 1 * * * /path/to/command`
-This means run `/path/to/command` at 1:30 AM every day.
+Example: 
 
-Reminder: The script needs to be made executable `chmod +x script.sh`
+`30 1 * * * /path/to/command` means run /path/to/command at 1:30 AM every day
 
-To summarize:
+`0 15 * * * /path/to/command` means run /path/to/command every day at 3:00 PM
+
+`0 16 * * 5 /path/to/command` means run /path/to/command every Friday at 4:00 PM
+
+Reminder: 
+
+- A script needs to be made executable `chmod +x script.sh`
+- Asterisk `*` means "every possible value" Example `month = *` means the command will run every month
 
 ```
 first number = minutes.
-The second number = hours.
+The second number = hours (24 hour format).
 The third number = days of the month.
 The fourth number = months.
 The fifth number = days of the week.
