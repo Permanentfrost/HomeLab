@@ -44,9 +44,51 @@ If you listed the devices in the `/dev` folder you probably noticed other partit
 
 
 ###### HardDrive
+```
+#!/bin/bash
+# Source directory (Raspberry Pi filesystem)
+SOURCE="/"
+# Destination directory (external SSD mount point)
+DESTINATION="/mnt/external_ssd"
+# Log file path
+LOG_FILE="/var/log/backup.log"
+# Execute rsync command
+rsync -av --delete --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} $SOURCE $DESTINATION >> $LOG_FILE 2>&1
+```
 
+`SOURCE`: Specifies the root directory of your Raspberry Pi's filesystem. Change this if your filesystem is located elsewhere.
 
+`DESTINATION`: Specifies the mount point of your external SSD. Adjust this to match the actual mount point of your SSD.
 
+`LOG_FILE`: Specifies the path where the log of the backup operation will be saved.
+
+`rsync`: Performs the actual synchronization. Here's a breakdown of the options used:
+
+`-a`: Archive mode, preserves permissions, ownership, timestamps, etc.
+
+`-v`: Verbose mode, shows the files being copied.
+
+`--delete`: Deletes files from the destination that no longer exist in the source (ensures an exact mirror).
+
+`--exclude`: Excludes certain directories from being copied. This list includes system directories that are not necessary for a backup.
+
+To set this up as a weekly cron job use the following steps:
+
+Save the script to a file, for example, `backup_script.sh`.
+
+Make the script executable with the command `chmod +x backup_script.sh`
+
+Open your crontab file with the command: crontab -e.
+
+Add the following line to schedule the script to run weekly:
+
+`0 0 * * 0 /path/to/backup_script.sh`
+
+This cron schedule means the script will run every Sunday at midnight (0 minutes, 0 hours).
+
+Make sure to replace `/path/to/backup_script.sh` with the actual path where you saved the script.
+
+With this setup, your Raspberry Pi will automatically perform a weekly backup to your external SSD at the scheduled time, and the log of the backup operation will be saved to the specified log file.
 
 ##### Prevent Auto-Sleep
 
