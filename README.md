@@ -36,12 +36,18 @@ also: `sar -n DEV 30 2`
 
 </details>
 
+#### Local Encryption via GnuPG
+
+1. Generate Keys via `gpg --full-generate-key`
+2. encrypt the file as follow `gpg -se -r username FILE`
+3. decrypt `gpg -se -r username FILE` then `>` into another doc
+   
 <details> 
-<summary>User Management</summary>
+<summary>User Rights Management</summary>
 
-##### user deletion incl. homefolder
+##### User deletion incl. homefolder
 
-cat /etc/passwd | cut -d: -f1
+Use `cat /etc/passwd | cut -d: -f1`
 
 **Explanation**
 
@@ -53,19 +59,6 @@ d:: Specifies colon (“:”) as a delimiter.
 f1: Specifies a field. Here number 1 means the first field.
 
 Now: `sudo deluser --remove-home myuser`
-
-
-</details>
-
-
-### Local Encryption via GnuPG
-1. Generate Keys via `gpg --full-generate-key`
-2. encrypt the file as follow `gpg -se -r username FILE`
-3. decrypt `gpg -se -r username FILE` then `>` into another doc
-   
-
-
-#### User Rights Management
 
 ##### chmod and chown 
 
@@ -115,6 +108,8 @@ Example: chmod 777 = (rwxrwxrwx)
 
 
 **chown** 
+
+</details>
 
 #### Misc Controlls CLI
 
