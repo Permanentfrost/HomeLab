@@ -17,6 +17,17 @@ sudo systemctl stop bluetooth
 sudo systemctl disable bluetooth
 ```
 
+##### Prevent Auto-Sleep
+
+It happens that a System or specific parts (ie. Raspberry) go into auto-sleep. 
+This can happen to the **wlan** module which is unacceptable if you are running it headless and only log in via SSH as there is no option to troubleshoot. 
+
+Make sure the `iw` utility tool is installed, if not `sudo apt install iw`. This assists in general wlan device troubleshooting. 
+
+Now you can just `iw wlan0 set power_save off`. 
+
+**Note**: This is only temporary. To fix this permantently you could use t
+
 
 ##### Temperature Management
 
