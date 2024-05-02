@@ -136,6 +136,8 @@ also: `sar -n DEV 30 2`
 ##### Full Disk Encryption via LUKS
 
 > [!WARNING]
+> During initial setup ALL your data will be lost!
+> 
 > LUKS or other Full-Disk-Encryption can have severe performance impacts. 
 
 Ask whether this is really needed for your case (Raspberry or Server). 
