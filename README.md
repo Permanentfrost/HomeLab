@@ -255,6 +255,19 @@ Syntax is `chown USER FILE` whereby `USER` is the **new** user of the file. To a
 
 - The `sort` command can sort a given file content alphabetically (default) or as specified per argument. Syntax `sort filename`
 
+#### Mail Setup
+
+There will be cases where you'll want automatic reminders sent based on system-events or similiar. 
+
+Example: CPU Temperature exceeds 75 Degrees -> Send mail to myself.
+
+Prerequisites: 
+
+1. **Separate** Mail Account (do not risk your Main Account for a small DIY project, always assume the worst case! 
+
+2. App-password  **or** actual mail account password (not suggested: if this PW leaks your account is open!)
+
+3. the script ready ;) 
 
 ## Networking 
 
