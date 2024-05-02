@@ -125,11 +125,24 @@ also: `sar -n DEV 30 2`
 
 </details>
 
-#### Local Encryption via GnuPG
+#### Encryption 
+
+##### Local File Encryption via GnuPG
 
 1. Generate Keys via `gpg --full-generate-key`
 2. encrypt the file as follow `gpg -se -r username FILE`
 3. decrypt `gpg -se -r username FILE` then `>` into another doc
+
+##### Full Disk Encryption via LUKS
+
+> [!WARNING]
+> LUKS or other Full-Disk-Encryption can have severe performance impacts. 
+
+Ask whether this is really needed for your case (Raspberry or Server). 
+
+Process for setup: 
+
+
 
 ##### crontab
 
