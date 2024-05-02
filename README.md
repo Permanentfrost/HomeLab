@@ -247,8 +247,13 @@ Syntax is `chown USER FILE` whereby `USER` is the **new** user of the file. To a
 
 #### Misc Controlls CLI
 
-##### Grep and Pipe
+##### pipe, grep, sort
 
+- The pipe command invoked by using `|` redirects output from one command to another for further processing. Example command `cat greptestfile.txt |grep "World"` Will read `cat` a textfile and then "pipe" `|`the file to `grep` to search for "World" and then display the line. 
+
+- The `grep` command allows for searching text and strings and is **case-sensitive**.
+
+- The `sort` command can sort a given file content alphabetically (default) or as specified per argument. Syntax `sort filename`
 
 
 ## Networking 
