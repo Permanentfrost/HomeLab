@@ -265,7 +265,7 @@ Prerequisites:
 
 1. **Separate** Mail Account (do not risk your Main Account for a small DIY project, always assume the worst case! 
 
-2. App-password  **or** actual mail account password (not suggested: if this PW leaks your account is open!)
+2. App-password  **or** actual mail account password (not suggested: if this PW leaks your account is open!) Also GMAIL does not support this anymore by end of 2024. Switch to App-PW if possible. That way the access is limited to only the app that uses this. 
 
 3. the script ready ;) 
 
