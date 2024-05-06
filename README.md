@@ -328,6 +328,26 @@ Keeping this in mind to test your config simply send a mail via `mail -s "Subjec
 
 Of course this now makes sense in a `cron-job` that runs daily/weekly. 
 
+**Examples**
+
+-Failed Login Attempts: Include information about failed login attempts from the authentication log `(/var/log/auth.log)`. Can help you identify potential brute-force attacks or unauthorized access attempts.
+
+-SSH Sessions: Monitor SSH sessions for any unusual activity, such as multiple sessions from the same IP address or connections from unfamiliar locations.
+
+-System Resource Usage: Include information about CPU (temp), memory, and disk usage to identify any abnormal spikes or resource exhaustion.
+
+-Network Traffic: Monitor network traffic to detect any unusual or suspicious patterns, such as a sudden increase in traffic or connections to known malicious IPs.
+
+-System Updates: Check for available system updates and include information about pending updates or security patches that need to be applied.
+
+-File Integrity: Perform periodic checks to ensure the integrity of critical system files and configurations. Unexpected changes could indicate a compromise. Be creative with this one ;) 
+
+-Backup Status: Include information about the status of your system backups to ensure that critical data is being properly backed up and can be restored in case of a security incident.
+
+-User Account Management: Monitor user account activity, such as new account creations or changes to user privileges, to detect any unauthorized changes.
+
+-System Logs Analysis: Analyze various system logs, including application logs and web server logs, for any suspicious activities or anomalies. You could `grep`for certain keywords and let the appropiate lines be mailed to you. 
+
 ###### Fail2Ban cron-job 
 
 ###### login and auth file cron-job 
