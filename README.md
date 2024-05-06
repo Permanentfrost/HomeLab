@@ -1,5 +1,8 @@
 # HomeLab Best-practices and Guide
-All Code / Write-ups and Documentation related to homelab setups. 
+
+**WHY?** The initial idea was to build a Cybersecurity lab consisting of an Intel NUC running proxmox. However, this lead to the rabbit-hole that is Linux and the new why could be summarized as follows: 
+
+**Document all knowledge I gain, find useful and interesting related to a homelab setup -> and have fun doing it!** 
 
 ## General Linux Tips 
 
