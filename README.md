@@ -269,20 +269,70 @@ Prerequisites:
   
 3. `apt-get install ssmtp mailutils` provides the appropriate software. 
 
-4. The config (your mail address and app-password are entered in ssmtp config file `/etc/ssmtp/ssmtp.conf` and revaliases file `revaliases` note in order to edit you can temporary change the access rights of both the directory and the folder via `chmod 777` and then back again with `chmod 640`
+4. The config (your mail address and app-password are entered in ssmtp config file `/etc/ssmtp/ssmtp.conf` and revaliases file `/etc/ssmtp/revaliases` note in order to edit you can temporary change the access rights of both the directory and the folder via `chmod 777` and then back again with `chmod 640`. I had to keep the folder at `chmod 777` to keep it working. The files were ok with `chmod 640`. 
 
 5. The App-Password is one string (even though google separates it). Therefore: `abcd defg abdd defg` becomes `abcdefgabcdefg` in the config file. 
 
+You find your hostname by just using the `hostname`command. 
 
+Config File Setup ssmtp.conf
 
-Note: if possible segregate here as well and set up a relay address so that your MAIN address is not visible to any intercepting/malicious traffic so that the setup is 
-Rasbperry Mail -> Relay Mail -> MAIN Address. 
+```
+# Config file for sSMTP sendmail
+#
+# The person who gets all mail for userids < 1000
+# Make this empty to disable rewriting.
+root=username@gmail.com
 
-Keeping this in mind to test your config simply send a mail via XXXX
+TLS_CA_FILE=/etc/pki/tls/certs/ca-bundle.crt
 
-``
+# The place where the mail goes. The actual machine name is required no 
+# MX records are consulted. Commonly mailhosts are named mail.domain.com
+mailhub=smtp.gmail.com:587
 
+# Where will the mail seem to come from?
+rewriteDomain=gmail.com
 
+# The full hostname
+hostname=HOSTNAMEOFYOURSYSTEM
+
+# Are users allowed to set their own From: address?
+# YES - Allow the user to specify their own From: address
+# NO - Use the system generated From: address
+FromLineOverride=YES
+
+AuthUser=gmailusername
+AuthPass=APP-Password
+UseTLS=Yes
+UseSTARTTLS=YES
+```
+
+Revaliases File Setup revaliases
+
+```
+# sSMTP aliases
+# 
+# Format:	local_account:outgoing_address:mailhub
+#
+# Example: root:your_login@your.domain:mailhub.your.domain[:port]
+# where [:port] is an optional port number that defaults to 25.
+root:username@gmail.com:smtp.gmail.com:587
+locauser:username@gmail.com:smtp.gmail.com:587
+www-data:username@gmail.com:smtp.gmail.com:587
+```
+
+> [!TIP]
+> If possible always segregate! Set up a Relay address so that your MAIN address is not visible to any intercepting/malicious traffic. Example setup : Rasbperry Mail -> Relay Mail -> MAIN Address.
+
+Keeping this in mind to test your config simply send a mail via `mail -s "Subject" RECIPIENT` followed by the Body of the Message and then press `ctrl + D`to send. 
+
+Of course this now makes sense in a `cron-job` that runs daily/weekly. 
+
+###### Fail2Ban cron-job 
+
+###### login and auth file cron-job 
+
+###### Temperature cron-job 
 
 
 ## Networking 
