@@ -263,13 +263,27 @@ Example: CPU Temperature exceeds 75 Degrees -> Send mail to myself.
 
 Prerequisites: 
 
-1. **Separate** Mail Account (do not risk your Main Account for a small DIY project, always assume the worst case! 
+1. **Separate** G-Mail Account. Do not risk your Main Account for a small DIY project, always assume the worst case and segregate if possible! The Account needs to have 2FA enabled. If you don't want to use your phone number you can use the Authenticator App (MS or Google Auth). 
 
-2. App-password  **or** actual mail account password (not suggested: if this PW leaks your account is open!) Also GMAIL does not support this anymore by end of 2024. Switch to App-PW if possible. That way the access is limited to only the app that uses this.
+2. App-password  **or** actual mail account password (not suggested: if this PW leaks your account is open!) Also GMAIL does not support this anymore by end of 2024. Switch to App-password if possible. That way the access is limited to only the App that uses it. Create passwords per App and do not use interchangable!!
   
-3. `apt-get install ssmtp mailutils` provides the appropriate software support. 
+3. `apt-get install ssmtp mailutils` provides the appropriate software. 
 
-4. The config (your mail address and app-password are entered in ssmtp config file `/etc/ssmtp/ssmtp.conf` . 
+4. The config (your mail address and app-password are entered in ssmtp config file `/etc/ssmtp/ssmtp.conf` and revaliases file `revaliases` note in order to edit you can temporary change the access rights of both the directory and the folder via `chmod 777` and then back again with `chmod 640`
+
+5. The App-Password is one string (even though google separates it). Therefore: `abcd defg abdd defg` becomes `abcdefgabcdefg` in the config file. 
+
+
+
+Note: if possible segregate here as well and set up a relay address so that your MAIN address is not visible to any intercepting/malicious traffic so that the setup is 
+Rasbperry Mail -> Relay Mail -> MAIN Address. 
+
+Keeping this in mind to test your config simply send a mail via XXXX
+
+``
+
+
+
 
 ## Networking 
 
