@@ -185,12 +185,17 @@ Use `cat /etc/passwd | cut -d: -f1`
 
 **Explanation**
 
-cat: Displays the contents of a file.
-/etc/passwd: Path of the passwd file that contains user information.
-Pipe(|): Redirects the output of one command into another.
-cut: Extracts parts of lines from a file or piped data.
-d:: Specifies colon (“:”) as a delimiter.
-f1: Specifies a field. Here number 1 means the first field.
+-cat: Displays the contents of a file.
+
+-/etc/passwd: Path of the passwd file that contains user information.
+
+-Pipe(|): Redirects the output of one command into another.
+
+-cut: Extracts parts of lines from a file or piped data.
+
+-d:: Specifies colon (“:”) as a delimiter.
+
+-f1: Specifies a field. Here number 1 means the first field.
 
 Now: `sudo deluser --remove-home myuser`
 
@@ -224,7 +229,7 @@ Result:
 `-rwxrwxrwx  1 user group   10 Apr 26 22:06 travelItaly.txt`
 
 > [!TIP]
-> Using Octal Notation is much faster.
+> Using Octal Notation is **much** faster.
 
 ```
 Binary	Octal	Permission
@@ -245,7 +250,7 @@ Example: chmod 777 = (rwxrwxrwx)
 
 **chown** 
 
-The command `chown` stands for change owner and alloss to change the owner and group of a file.
+The command `chown` stands for change owner and allows to change the owner and group of a file.
 
 Syntax is `chown USER FILE` whereby `USER` is the **new** user of the file. To assign the group as well use `chown USER:GROUP FILE`
 
@@ -255,7 +260,7 @@ Syntax is `chown USER FILE` whereby `USER` is the **new** user of the file. To a
 
 ##### pipe, grep, sort
 
-- The pipe command invoked by using `|` redirects output from one command to another for further processing. Example command `cat greptestfile.txt |grep "World"` Will read `cat` a textfile and then "pipe" `|`the file to `grep` to search for "World" and then display the line. 
+- The pipe command invoked by using `|` redirects output from one command to another for further processing. Example command `cat greptestfile.txt | grep "World"` Will read `cat` a textfile and then "pipe" `|`the file to `grep` to search for "World" and then display the line. 
 
 - The `grep` command allows for searching text and strings and is **case-sensitive**.
 
@@ -269,19 +274,19 @@ Example: CPU Temperature exceeds 75 Degrees -> Send mail to myself.
 
 Prerequisites: 
 
-1. **Separate** G-Mail Account. Do not risk your Main Account for a small DIY project, always assume the worst case and segregate if possible! The Account needs to have 2FA enabled. If you don't want to use your phone number you can use the Authenticator App (MS or Google Auth). 
+1. **Separate** G-Mail Account. Do not risk your Main Account for a small DIY project, always assume the worst case and segregate wherever possible! The Account needs to have 2FA enabled. If you don't want to use your phone number you can use the Authenticator App (MS or Google Auth). 
 
-2. App-password  **or** actual mail account password (not suggested: if this PW leaks your account is open!) Also GMAIL does not support this anymore by end of 2024. Switch to App-password if possible. That way the access is limited to only the App that uses it. Create passwords per App and do not use interchangable!!
+2. App-password  **or** actual mail account password (not suggested: if this PW leaks your account is open!) Also GMAIL does not support this anymore by end of 2024. Switch to App-password if possible. That way the possible damaged is limited to only the App that uses it. Create passwords per App and do not use interchangable! Again: segregate where possible! 
   
 3. `apt-get install ssmtp mailutils` provides the appropriate software. 
 
-4. The config (your mail address and app-password are entered in ssmtp config file `/etc/ssmtp/ssmtp.conf` and revaliases file `/etc/ssmtp/revaliases` note in order to edit you can temporary change the access rights of both the directory and the folder via `chmod 777` and then back again with `chmod 640`. I had to keep the folder at `chmod 777` to keep it working. The files were ok with `chmod 640`. 
+4. Your mail address and app-password are entered in the ssmtp config file `/etc/ssmtp/ssmtp.conf` and revaliases file `/etc/ssmtp/revaliases`. Note that in order to edit you may need to temporary change the access rights of both the directory and the folder via `chmod 777` and then back again with `chmod 640`. I had to keep the folder at `chmod 777` to keep it working. The files were ok with `chmod 640`. 
 
-5. The App-Password is one string (even though google separates it). Therefore: `abcd defg abdd defg` becomes `abcdefgabcdefg` in the config file. 
+5. Important: The App-Password is one string (even though google separates it). Therefore: `abcd defg abdd defg` becomes `abcdefgabcdefg` in the config file. 
 
-You find your hostname by just using the `hostname`command. 
+6. You find your hostname by just using the `hostname`command. 
 
-Config File Setup ssmtp.conf
+**Config File Setup ssmtp.conf**
 
 ```
 # Config file for sSMTP sendmail
@@ -323,16 +328,16 @@ Revaliases File Setup revaliases
 # Example: root:your_login@your.domain:mailhub.your.domain[:port]
 # where [:port] is an optional port number that defaults to 25.
 root:username@gmail.com:smtp.gmail.com:587
-locauser:username@gmail.com:smtp.gmail.com:587
+localuser:username@gmail.com:smtp.gmail.com:587
 www-data:username@gmail.com:smtp.gmail.com:587
 ```
 
 > [!TIP]
-> If possible always segregate! Set up a Relay address so that your MAIN address is not visible to any intercepting/malicious traffic. Example setup : Rasbperry Mail -> Relay Mail -> MAIN Address.
+> If possible always segregate! Set up a Relay address so that your MAIN address is not visible to any intercepting/malicious traffic. Example setup : Rasbperry Mail -> Relay Mail (ie. SimpleLogin) -> MAIN Address.
 
-Keeping this in mind to test your config simply send a mail via `mail -s "Subject" RECIPIENT` followed by the Body of the Message and then press `ctrl + D`to send. 
+Testing: To test your configuration setup, simply send a mail via `mail -s "Subject" RECIPIENT` followed by the Body of the Message, then press `ctrl + D`to send. 
 
-Of course this now makes sense in a `cron-job` that runs daily/weekly. 
+Of course this makes a lot more sense in a `cron-job` context that runs daily/weekly/monthly. 
 
 **Examples**
 
@@ -356,10 +361,15 @@ Of course this now makes sense in a `cron-job` that runs daily/weekly.
 
 ###### Fail2Ban cron-job 
 
+*TBC...*
+
 ###### login and auth file cron-job 
+
+*TBC...*
 
 ###### Temperature cron-job 
 
+*TBC...*
 
 ## Networking 
 
@@ -369,7 +379,8 @@ Of course this now makes sense in a `cron-job` that runs daily/weekly.
 
 ### VLAN Setup 
 
-First: Consider the caveats and ask whether this is really necessary or if there is no workaround. The cost (monetary and time) to setup and maintain are really high.    
+> [!CAUTION]
+> On the Topic of VLANS: Consider all caveats and ask whether this is really necessary or if there is no workaround. The cost (monetary and time) to setup and maintain are really high.
 
 ###### Tagged
 
