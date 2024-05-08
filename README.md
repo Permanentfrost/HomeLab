@@ -396,66 +396,100 @@ Of course this makes a lot more sense in a `cron-job` context that runs daily/we
 <details>
 <summary> Hardening Guide </summary>
 
- #### Host Security
-  
--Cluster not reachable by Outside
-  
--Fail2Ban with Monitoring and Email Alerts
+#### Host Security
 
--Encrypted Hosts with Luks
+1. **Cluster Isolation**:
+   - Ensure that the Proxmox cluster is **not reachable from outside** the trusted network.
+   - Implement network segmentation to prevent unauthorized access.
 
--Encrypted Swap
+2. **Fail2Ban with Monitoring and Email Alerts**:
+   - Set up **Fail2Ban** to monitor and block suspicious login attempts.
+   - Configure email alerts for security events.
 
--IP based Access Control
+3. **Host Encryption**:
+   - Encrypt the Proxmox hosts using **LUKS (Linux Unified Key Setup)** full disk encryption (FDE).
+   - This protects data at rest and prevents unauthorized access to the host.
 
--Behind a Pfsense Firewall
+4. **Encrypted Swap**:
+   - Enable swap encryption to secure sensitive data in memory.
 
--2FA for each User
+5. **IP-Based Access Control**:
+   - Restrict access to the Proxmox hosts based on IP addresses.
+   - Whitelist trusted IPs and block unauthorized ones.
 
-**VM Security:**
+6. **Firewall Protection**:
+   - Place the Proxmox hosts behind a **Pfsense Firewall** for additional security.
+   - Configure firewall rules to allow only necessary traffic.
 
--Vlan for each critical VM / non Critical VMs are based in Application grouped Vlans
+7. **Two-Factor Authentication (2FA)**:
+   - Enforce 2FA for each user accessing the Proxmox hosts.
+   - This adds an extra layer of authentication.
 
--Fail2Ban with Monitoring and Email Alerts
+#### VM Security
 
--Encrypted VM
+1. **VLAN Segmentation**:
+   - Assign a separate VLAN for each critical VM.
+   - Group non-critical VMs into application-specific VLANs.
 
--VMs dont have any Networkstorage (only the ve host provides Storage)
+2. **Fail2Ban for VMs**:
+   - Implement **Fail2Ban** within VMs to protect against brute-force attacks.
+   - Monitor and receive email alerts for suspicious activity.
 
--Custom Ports
+3. **VM Encryption**:
+   - Encrypt VMs to safeguard their data.
+   - Use encryption mechanisms available within the VMs.
 
--Behind a pfsense Firewall
+4. **Network Storage Isolation**:
+   - VMs should not have direct access to network storage.
+   - Only the Proxmox host should provide storage to VMs.
 
--Swap Encryption
+5. **Custom Ports**:
+   - Configure custom ports for VM services.
+   - Avoid using default ports to reduce exposure.
 
--Services get published by haproxy with another Layer of Access control
+6. **Firewall for VMs**:
+   - Place VMs behind a **Pfsense Firewall** to filter traffic.
+   - Apply access control rules to allow necessary communication.
 
-**Backup Security:**
+7. **Swap Encryption for VMs**:
+   - Enable swap encryption within VMs to protect sensitive data.
 
--No unencrypted Backups
+8. **Service Publication via HAProxy**:
+   - Publish services through **HAProxy** with an additional layer of access control.
+   - HAProxy can handle load balancing and provide security features.
 
--Backups are never stored on the same site as the encryption key
+####Backup Security
 
--Coldstorage Backups perfromed weekly
+1. **Encrypted Backups**:
+   - Ensure that backups are always encrypted.
+   - Use encryption mechanisms provided by backup tools.
 
--Off-site Backups are performed encrypted and protected against Changes
+2. **Off-Site Storage**:
+   - Store backups off-site, away from the primary location.
+   - Prevent data loss due to local disasters.
 
+3. **Cold Storage Backups**:
+   - Perform weekly cold storage backups.
+   - Cold storage ensures data availability even if the live system fails.
 
+4. **Protection Against Changes**:
+   - Protect off-site backups against unauthorized changes.
+   - Implement access controls and integrity checks.
   
 </details>
+
+
 
 <details> 
  <summary> Obtain SSL Certificates </summary>
 
-##### SSL Certificate with Let's Encrypt
+##### SSL Certificate via Let's Encrypt
 
-You don’t want to see certificate warnings all the time. How do you get the green lock locally?
+Problem: You don’t want to see certificate warnings all the time. How do you get the green lock locally?
 
-**Solution**
+Solution: Generate your own certificate, either self-signed or signed by a local root, and trust it in your operating system’s trust store. Then use that certificate in your local web server. See below for details. You can actually make your own certificates without help from a CA. Only difference is that certificates you make yourself **won’t be trusted by anyone else** (which makes sense, no CA involved). **For local development, that’s fine.**
 
-Generate your own certificate, either self-signed or signed by a local root, and trust it in your operating system’s trust store. Then use that certificate in your local web server. See below for details. Anyone can make their own certificates without help from a CA. The only difference is that certificates you make yourself **won’t be trusted by anyone else**. For local development, that’s fine.
-
-The simplest way to generate a private key and self-signed certificate for localhost is with this openssl command:
+A way to generate a private key and self-signed certificate for localhost is with this command:
 
 ```
 openssl req -x509 -out localhost.crt -keyout localhost.key \
@@ -463,39 +497,44 @@ openssl req -x509 -out localhost.crt -keyout localhost.key \
   -subj '/CN=localhost' -extensions EXT -config <( \
    printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
 ```
-
-You can then configure your local web server with `localhost.crt` and `localhost.key`, and install `localhost.crt` in your list of locally trusted roots.
-If you want a little more realism in your development certificates, you can use minica to generate your own local root certificate, and issue end-entity (aka leaf) certificates signed by it. You would then import the root certificate rather than a self-signed end-entity certificate. You can also choose to use a domain with dots in it, like `www.localhost`, by adding it to `/etc/hosts` as an alias to `127.0.0.1`. This subtly changes how browsers handle cookie storage.
-
-
-<details> 
  
- <summary>What do the Commands actually mean?</summary>
+**Explanation**: 
 
-1. **openssl**: This is the command-line tool used to perform various cryptographic operations, including generating SSL/TLS certificates.
+- `openssl req`: This is the command to create and process certificate requests in PKCS#10 format.
 
-2. **req**: This subcommand of `openssl` is used for generating certificate signing requests (CSRs) and self-signed certificates.
+- `-x509`: This option specifies that a self-signed certificate is to be generated.
 
-3. **-x509**: This option specifies that the output should be a self-signed certificate instead of a CSR.
+- `-out localhost.crt`: This designates the output filename for the certificate.
 
-4. **-out localhost.crt**: This option specifies the filename for the output self-signed certificate. In this case, it's named `localhost.crt`.
+- `-keyout localhost.key`: This specifies the output filename for the private key.
 
-5. **-keyout localhost.key**: This option specifies the filename for the private key associated with the generated certificate. In this case, it's named `localhost.key`.
+- `-newkey rsa:2048`: This creates a new certificate request and a new private key. `rsa:2048` indicates an RSA key of 2048 bits.
 
-6. **-newkey rsa:2048**: This option generates a new RSA key pair with a key size of 2048 bits.
+- `-nodes`: This tells OpenSSL to not encrypt the private key, meaning "no DES".
 
-7. **-nodes**: This option specifies that the private key should not be encrypted with a passphrase. This is useful for automated processes or local development where passphrase input is not desired.
+- `-sha256`: This specifies the use of the SHA-256 hash algorithm.
 
-8. **-sha256**: This option specifies the hash algorithm to be used for signing the certificate. In this case, it's SHA-256.
+- `-subj '/CN=localhost'`: This sets the subject field for the certificate to have a common name (CN) of 'localhost'.
 
-9. **-subj '/CN=localhost'**: This option sets the subject of the certificate. The `/CN=localhost` indicates that the Common Name (CN) of the certificate is `localhost`.
+- `-extensions EXT`: This specifies the extensions to be added to the certificate.
 
-10. **-extensions EXT -config <( printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")**: This part is a bit more complex. It configures the certificate extensions, specifically adding a Subject Alternative Name (SAN) for `localhost`, specifying key usage, and extended key usage. The `<(...)` construct allows the output of the `printf` command to be used as input to `openssl`.
+- `-config <(...)`: This is a shell feature called process substitution, which allows the output of a command to be used as a file. The `printf` command inside generates the necessary configuration on the fly.
+
+The `printf` command generates a minimal configuration file with the following contents:
+
+- `[dn]` and `CN=localhost` set the distinguished name to 'localhost'.
+
+- `[req]` and `distinguished_name = dn` tell the request to use the distinguished name specified earlier.
+
+- `[EXT]` defines a section for extensions, where `subjectAltName=DNS:localhost` adds an alternative name for the certificate, which is important for matching the certificate to the domain name.
+
+- `keyUsage=digitalSignature` restricts the key's usage to digital signatures.
+
+- `extendedKeyUsage=serverAuth` indicates that the key is used for server authentication.
+
+Of course: For production environments, it's recommended to use certificates issued by a trusted Certificate Authority (CA) like Lets Encrypt.
 
 </details>
-
-</details>
-
 
 <details> 
 <summary> rsyslog server </summary>
@@ -508,8 +547,8 @@ The Raspberry in question needs to have a static IP so that the TARGET is clear.
 
 If not installed make sure it is from `sudo apt install rsyslog`
 
-Make sure raspberry listens on Port 514 `sudo nano /etc/rsyslog.conf`
-You can do this by uncommenting these lines 
+Make sure raspberry listens on Port 514 `sudo nano /etc/rsyslog.conf` You can do this by uncommenting these lines 
+
 ```
 module(load="imudp")
 input(type="imudp" port="514")
@@ -517,27 +556,26 @@ input(type="imudp" port="514")
 module(load="imtcp")
 input(type="imtcp" port="514")
 ```
-Placeholder--> Both Protocols? Security Risk? Why does the sender need an ACK ? 
 
-Template Creation
+*Placeholder--> Both Protocols necessary? Security Risk? Why does the sender need an ACK ?* 
+
+###### Template Creation
 
 Now we need to create a template. This template tells syslog where to route the messages it’s receiving. For this, you will need to know your device’s **static** IP address.
 
-Create a config file within the `/etc/rsyslog.d` directory. Any config file we write within this directory will be read automatically by **rsyslog** when we restart it.
-Within this file, we will define a new template. Additionally, we will also need to specify some configuration to route syslog messages to our new log file.
-For this example, we will call this file `pimylifeupRouterLog.conf`. You can give this file any name you want, but it must end in `.conf`.
+Create a config file within the `/etc/rsyslog.d` directory. Config files writen within this directory will be read automatically by **rsyslog** when we (re)start it.
+Within this file, we will define a new template. Additionally, we also specify some configuration to route syslog messages to our new log file.
+For this example, we will call this file `SuperSafeRouterLog.conf`. You can give this file any name you want, but it must end in `.conf`.
 
-Therefore just: `sudo nano /etc/rsyslog.d/pimylifeupRouterLog.conf`
+Therefore just: `sudo nano /etc/rsyslog.d/SuperSafeRouterLog`
 
-Within this file, we need to enter some new lines. A template utilizes the following format and tells the syslog server where to save the logs to.
+Now, a template tells the syslog server where to save the logs to.
 
 `$template NameForTemplate, "DirectoryWhereLogIs/logName.log`
 
-To route the syslog messages to our new template, we need to do some extra configuration.
+To route the syslog messages to our template, we need configure as follows:
 
-For this, we are going to utilize the following lines.
-
-You will need to swap out “IPADDRESSTOUSE” with the IP of the device you are expecting to receive the syslog messages **from**.
+Swap out “IPADDRESSTOUSE” with the IP of the device you are expecting to receive the syslog messages **from**.
 
 Additionally, you will need to also swap out “templatename” with the name you specified in the previous step.
 
@@ -558,7 +596,7 @@ Then restart the rsyslog service with `sudo systemctl restart rsyslog`
 Note: Now enable the syslog protocol on the device you are using and point it towards your Raspberry Pi’s IP. 
 The Raspberry Pi will start receiving the log messages from the device and start saving them to the log file you specified for that template.
 
-How to Point towards syslog server
+How to Point towards syslog server? 
 
 Edit the rsyslog Config File located in `/etc/rsyslog.conf` which also relates to `/etc/rsyslog.d/50-default.conf` 
 
