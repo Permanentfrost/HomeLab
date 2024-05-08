@@ -102,13 +102,15 @@ Make sure the `iw` utility tool is installed, if not `sudo apt install iw`. This
 
 Now you can just `iw wlan0 set power_save off`. 
 
-**Note**: This is only temporary. To fix this permantently you could add the following into the root crontab
+**Note**: This is only temporary. To fix this permantently you can add the following into the root crontab
 
 `sudo crontab -e`
 which opens the root crontab in your chosen editor and add the following line at the bottom of the root crontab:
 
 `@reboot /usr/sbin/iw wlan0 set power_save off > /home/<user>/power_save_log.txt 2>&1`
-be sure to substitute a valid folder name for `<user>`
+be sure to substitute a valid folder name for `<user>` 
+
+This tells linux at every boot sequence to turn the power save off. 
 
 ##### Temperature Management
 
@@ -147,7 +149,7 @@ Ask whether this is really needed for your case (Raspberry or Server).
 
 Process for setup: 
 
-
+*To be completed...*
 
 ##### crontab
 
@@ -163,7 +165,8 @@ Example:
 
 Reminder: 
 
-- A script needs to be made executable `chmod +x script.sh`
+- A script needs to be made **executable** with command `chmod +x script.sh`
+
 - Asterisk `*` means "every possible value" Example `month = *` means the command will run every month
 
 ```
