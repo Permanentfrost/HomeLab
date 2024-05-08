@@ -769,74 +769,52 @@ Status for the jail: sshd
 `- Banned IP list: xxx.xxx.xxx.xxx.
 ```
 
-How to permanently ban an IP with Fail2Ban
+Fail2Ban does ban on a temporary level. It is not advised to change this to permanent. You can simply change this to a longer interval or make it incrementally "worse" for the attacker. 
 
-By now you know that the ban put on an IP by Fail2Ban is a temporary one. By default it’s for 10 minutes and the attacker can try to login again after 10 minutes.
+Example: 
+```
+# initial ban time:
+bantime = 1h
+# incremental banning:
+bantime.increment = true
+# default factor (causes increment - 1h -> 1d 2d 4d 8d 16d 32d ...):
+bantime.factor = 24
+# max banning time = 5 week:
+bantime.maxtime = 5w
+```
 
-This poses a security risk because attackers could use a script that tries logging in after an interval of 10 minutes.
 
-So, how do you put a permanent ban using Fail2Ban? There is no clear answer for that.
-
-How to unban IP blocked by Fail2Ban
+How to unban blocked IPs
 
 First check if the IP is being blocked or not. Since Fail2Ban works on the iptables, you can look into the iptable to view the IPs being banned by your server:
 
-iptables -n -L
-You may have to use grep command if there are way too many IPs being banned.
+`iptables -n -L` (Work with the `grep`command detailed above in case there are too many IPs.
 
-If you find the specified IP address in the output, it is being banned:
+So, the next step is to find which service or jail is banning the IP we are looking for.
 
-So, the next step is to find which ‘jail’ is banning the said IP. You’ll have to use Grep command with the fail2ban logs here.
+Once found simply unban with `fail2ban-client set <jail_name> unbanip <ip_address>`
 
-As you can see in the output below, the IP is being banned by sshd jail.
+Whitelist IP in Fail2Ban
 
-root@test-server:~# grep -E ‘Ban.*61.184.247.3’ /var/log/fail2ban.log
-2019-03-14 13:09:25,029 fail2ban.actions [25630]: NOTICE [sshd] Ban 61.184.247.3
-2019-03-14 13:52:56,745 fail2ban.actions [25630]: NOTICE [sshd] Ban 61.184.247.3
-Now that you know the name of the jail blocking the IP, you can unban the IP using the fail2ban-client:
+We are all clumsy and could ban ourselves. To ignore/whitelist specific IP address from being banned by Fail2Ban, you can temporarily whitelist the IP using a command like this:
 
-fail2ban-client set <jail_name> unbanip <ip_address>
-How to whitelist IP in Fail2Ban
+`fail2ban-client set <JAIL_NAME> addignoreip <IP_Address>`
 
-It won’t be a good thing if you ban yourself, right? To ignore an IP address from being banned by the current session of Fail2Ban, you can whitelist the IP using a command like this:
+Note: Locate your own IP with `ip a` command
 
-fail2ban-client set <JAIL_NAME> addignoreip <IP_Address>
-You can find your IP address in Linux easily. In my case, it was
+Whitelist permanently by editing the actual config file located in `/etc/fail2ban/jail.local`  and add a line under the DEFAULT section like this: 
 
-sudo fail2ban-client set sshd addignoreip 203.93.83.113
-These IP addresses/networks are ignored:
-`- 203.93.83.113
-If you want to permanently whitelist the IP, you should edit the jail configuration file. Go to the said jail section and add the ignoreip line like this:
+`ignoreip = 127.0.0.1 <IP_TO_BE_WHITELISTED>`
 
-ignoreip = 127.0.0.1/8 <IP_TO_BE_WHITELISTED>
-If you want to whitelist an IP from all the jails on your system, it would be a better idea to edit the /etc/fail2ban/jail.local file and add a line under the DEFAULT section like what we saw above.
-
-You’ll have to restart Fail2Ban to take this change into effect.
-
-How to see the IP whitelist by a jail
+Make sure to to restart Fail2Ban to take this change into effect.
 
 You can see all the IPs whitelisted by a jail using this command:
 
-fail2ban-client get <JAIL_NAME> ignoreip
-It should show all the IPs being ignored by Fail2Ban for that jail:
+`fail2ban-client get <JAIL_NAME> ignoreip`
 
-sudo fail2ban-client set sshd addignoreip 203.93.83.113
-These IP addresses/networks are ignored:
-|- 127.0.0.0/8
-|- ::1
-`- 203.93.83.113
-How to remove an IP from Fail2Ban whitelist
+If you want to remove the IP from a certain jail’s whitelist, you can use this command:
 
-If you are removing the IP from a certain jail’s whitelist, you can use this command:
-
-fail2ban-client set <JAIL_NAME> delignoreip <IP_Address>
-If you want to permanently remove the IP, you should edit the /etc/fail2ban/jail.local file.
-
-
-
-
-
----
+`fail2ban-client set <JAIL_NAME> delignoreip <IP_Address>`
 
 ###### Disable empty passwords
 
