@@ -677,160 +677,23 @@ Note: Any SSH configuration files are located at `/etc/ssh/sshd_config.`
 
 Most of the SSH hardening tips will require editing this config file. It is good practice to back up the original file. After a change you also need to restart the SSH service if you make any changes to the SSH config file.
 
+--- 
 
-###### Disable empty passwords
+As always make sure your system is updated:
 
-It is partially possible to have user accounts in Linux without any passwords. If those users try to use SSH, they won’t need passwords for accessing the server via SSH as well.
+`sudo apt update && sudo apt upgrade -y`
 
-This is of course a security risk and should be corrected. In the `/etc/ssh/sshd_config` file, make sure to set `PermitEmptyPasswords` option to no.
-
-###### Change default SSH ports
-
-The default SSH port is 22, therefore most of the attack scripts are written around this port. Changing the default SSH port should add an additional security layer because the number of attacks (coming to port 22) may be reduce.
-
-Search for the port information in the config file and change it to something different:
-
-Example: Port 1234
-
-> [!TIP]
-> Remember to note down the port number.
-
-###### Disable root login via SSH
-
-Root Login is by default deactivated in UBUNTU (as it should be!). It is a grave security risk and leaves no audit trail. Think about it: No trace of who did what! A mechanism like sudo exists specifically for this reason.
-
-Always force all users to SSH via their user and completely disable root. 
-
-If you have sudo users added on your system, you should use that sudo user to access the server via SSH instead of root.
-
-Cisable the root login by modifying the `PermitRootLogin` option and setting it as no:
-
-`PermitRootLogin = no`
-
-###### Disable ssh protocol 1
-
-In case an older Linux distribution is used some older SSH version might still be in use (SSH protocol 1 vs 2). This protocol has known vulnerabilities and must **not** be used.
-
-Newer SSH versions automatically have SSH protocol 2 enabled. 
-
-Check with command `ssh -V` for a Verbose output of ssh version. 
-
-###### Configure idle timeout interval
-
-The idle timeout interval is the amount of time an SSH connection remains active without any activity. Idle sessions are considered a security risk. It is a good idea to configure idle timeout interval and bring this down to 5 minutes. The interval is indicated in seconds in the config file. 
-
-`ClientAliveInterval 300`will give you 300 seconds = 5 minutes of idle activity. 
-
-`ClientAliveCountMax 2` will send two alive messages. 
-
-After this 300 second interval, the SSH server will send two alive messages to the client. If it doesn’t get a response, the connection will be closed and the end user will be logged out.
-
-###### Allow SSH access to selected users only
-
-Always follow the principle of least privilege. Do not give rights when it is not required.
-
-Ask yourself: Do you need to allow SSH access to all of your users? 
-
-A best practice approach here would be to allow SSH access to only a handful of selected users and restricting for all the other users.
-
-`AllowUsers User1 User2`
-Note that you could also add selected users to a new group and allow only this group to access SSH.
-
-`AllowGroups ssh_group`
-Note that you could also use the DenyUsers and DenyGroups to deny SSH access to certain users and groups.
-
-###### Disable X11 Forwarding
-
-The X11 or the X display server is the basic framework for a graphical environment forwarding, meading that it allows you to use a GUI application via SSH.
-
-How this works is that the client runs the GUI application on the server and then a channel is opened between the machines and the GUI applications is displayed on the client machine.
-
-The X11 protocol is not security oriented. If you don’t need it, disable the X11 forwarding in SSH.
-
-`X11Forwarding no`
-
-Interesting excerpt from IBMs X11 page: 
-
-```
-An important security issue associated with the X11 server is unauthorized silent monitoring of a remote server.
-
-The xwd and xwud commands can be used to monitor X server activity because they have the ability to capture keystrokes, which can expose passwords and other sensitive data. To solve this problem, remove these executable files unless they are necessary under your configuration, or, as an alternative, change access to these commands to be root only.
-```
-
-###### Disable password based SSH login
-
-No matter how much a system is protected there is a high likelyhood of brute-force attempts via SSH. Tools like Fails2Ban are well known so it is good practice to opt-in for Key-Based Login only. 
-
-> [!IMPORTANT]
-> Again because this is one of my favourite topics: If you can, set up ssh-keys for your Login and disable password based logins.
-
-In this approach, you add the public key of the remote client systems to the known keys list on the SSH server. This way, those client machines can access SSH without entering the user account password.
-
-When you have this setup, you can disable password based SSH login. Now, only the clients machines that have the specified SSH keys can access the server via SSH.
-
-Before you go for this approach, make sure that you have added your own public key to the server and it works. Otherwise, you’ll lock yourself out and may lose access to the remote server specially if you are using a cloud server like Linode where you don’t have physical access to the server.
-
-> [!WARNING]
-> Before disabling ssh password authentication. Make sure your access with private key works as expected. Once confirmed, disable password authentication.
-
-Edit file with: `sudo nano /etc/ssh/sshd_config`
-
-Make sure you have following values enabled in the file:
-
-```
-PermitRootLogin no
-
-PasswordAuthentication no
-
-ChallengeResponseAuthentication no
-
-UsePAM no
-```
-
-Save file and then restart ssh service
-
-`sudo service ssh restart`
-
-or
-
-`sudo systemctl restart ssh`
-
-###### Two-factor authentication with SSH
-
-To take SSH security to the next level, you may also enable two-factor authentication. In this approach, you receive a one-time password on your mobile phone, email or through a third-party aunthentication app.
-
-You may read about setting up two-factor authentication with SSH here.
-
-###### Conclusion
-
-You can see all the parameters of your SSH server using the command `sshd -T`
-
-This way, you can easily see if you need to change any parameter to enhance the security of the SSH server. Also remember to keep the SSH install and system updated regularly.
-
-</details>
-
-<details> 
-<summary> Fail2Ban DetailInstall </summary>
-## Fail2Ban 
-
-Install Fail2Ban on Ubuntu & Debian
-
-First, make sure your system is updated:
-
-sudo apt update && sudo apt upgrade -y
 Now, install Fail2Ban with this command:
 
-sudo apt install fail2ban
-DigitalOcean – The developer cloud
-Helping millions of developers easily build, test, manage, and scale applications of any size – faster than ever before.
-Get started on DigitalOcean with a $100, 60-day credit for new users.
+`sudo apt install fail2ban`
+
 Understanding Fail2Ban configuration file
 
-There are two main configuration files in Fail2Ban: /etc/fail2ban/fail2ban.conf and /etc/fail2ban/jail.conf. Let me explain what they do.
+Main configuration files in Fail2Ban: `/etc/fail2ban/fail2ban.conf` and `/etc/fail2ban/jail.conf`. 
 
-/etc/fail2ban/fail2ban.conf: This is the configuration file for the operational settings of the Fail2Ban daemon. Settings like loglevel, log file, socket and pid file is defined here.
+`/etc/fail2ban/fail2ban.conf`: Configuration file for the operational settings of the Fail2Ban daemon. Settings like loglevel, log file, socket and pid file are defined here.
 
-/etc/fail2ban/jail.conf: This is where all the magic happens. This is the file where you can configure things like default ban time, number of reties before banning an IP, whitelisting IPs, mail sending information etc. Basically you control the behavior of Fail2Ban from this file.
+`/etc/fail2ban/jail.conf`: This is where all the magic happens. This is the file where you can configure things like default ban time, number of reties before banning an IP, whitelisting IPs, mail sending information etc. Basically you control the behavior of Fail2Ban from this file.
 
 Now, before you go and change these files, Fail2Ban advise making a copy with .local file for these conf files. It’s because the default conf files can be overwritten in updates and you’ll lose all your settings.
 
@@ -1002,8 +865,143 @@ If you are removing the IP from a certain jail’s whitelist, you can use this c
 
 fail2ban-client set <JAIL_NAME> delignoreip <IP_Address>
 If you want to permanently remove the IP, you should edit the /etc/fail2ban/jail.local file.
-</details>
 
+
+
+
+
+---
+
+###### Disable empty passwords
+
+It is partially possible to have user accounts in Linux without any passwords. If those users try to use SSH, they won’t need passwords for accessing the server via SSH as well.
+
+This is of course a security risk and should be corrected. In the `/etc/ssh/sshd_config` file, make sure to set `PermitEmptyPasswords` option to no.
+
+###### Change default SSH ports
+
+The default SSH port is 22, therefore most of the attack scripts are written around this port. Changing the default SSH port should add an additional security layer because the number of attacks (coming to port 22) may be reduce.
+
+Search for the port information in the config file and change it to something different:
+
+Example: Port 1234
+
+> [!TIP]
+> Remember to note down the port number.
+
+###### Disable root login via SSH
+
+Root Login is by default deactivated in UBUNTU (as it should be!). It is a grave security risk and leaves no audit trail. Think about it: No trace of who did what! A mechanism like sudo exists specifically for this reason.
+
+Always force all users to SSH via their user and completely disable root. 
+
+If you have sudo users added on your system, you should use that sudo user to access the server via SSH instead of root.
+
+Cisable the root login by modifying the `PermitRootLogin` option and setting it as no:
+
+`PermitRootLogin = no`
+
+###### Disable ssh protocol 1
+
+In case an older Linux distribution is used some older SSH version might still be in use (SSH protocol 1 vs 2). This protocol has known vulnerabilities and must **not** be used.
+
+Newer SSH versions automatically have SSH protocol 2 enabled. 
+
+Check with command `ssh -V` for a Verbose output of ssh version. 
+
+###### Configure idle timeout interval
+
+The idle timeout interval is the amount of time an SSH connection remains active without any activity. Idle sessions are considered a security risk. It is a good idea to configure idle timeout interval and bring this down to 5 minutes. The interval is indicated in seconds in the config file. 
+
+`ClientAliveInterval 300`will give you 300 seconds = 5 minutes of idle activity. 
+
+`ClientAliveCountMax 2` will send two alive messages. 
+
+After this 300 second interval, the SSH server will send two alive messages to the client. If it doesn’t get a response, the connection will be closed and the end user will be logged out.
+
+###### Allow SSH access to selected users only
+
+Always follow the principle of least privilege. Do not give rights when it is not required.
+
+Ask yourself: Do you need to allow SSH access to all of your users? 
+
+A best practice approach here would be to allow SSH access to only a handful of selected users and restricting for all the other users.
+
+`AllowUsers User1 User2`
+Note that you could also add selected users to a new group and allow only this group to access SSH.
+
+`AllowGroups ssh_group`
+Note that you could also use the DenyUsers and DenyGroups to deny SSH access to certain users and groups.
+
+###### Disable X11 Forwarding
+
+The X11 or the X display server is the basic framework for a graphical environment forwarding, meading that it allows you to use a GUI application via SSH.
+
+How this works is that the client runs the GUI application on the server and then a channel is opened between the machines and the GUI applications is displayed on the client machine.
+
+The X11 protocol is not security oriented. If you don’t need it, disable the X11 forwarding in SSH.
+
+`X11Forwarding no`
+
+Interesting excerpt from IBMs X11 page: 
+
+```
+An important security issue associated with the X11 server is unauthorized silent monitoring of a remote server.
+
+The xwd and xwud commands can be used to monitor X server activity because they have the ability to capture keystrokes, which can expose passwords and other sensitive data. To solve this problem, remove these executable files unless they are necessary under your configuration, or, as an alternative, change access to these commands to be root only.
+```
+
+###### Disable password based SSH login
+
+No matter how much a system is protected there is a high likelyhood of brute-force attempts via SSH. Tools like Fails2Ban are well known so it is good practice to opt-in for Key-Based Login only. 
+
+> [!IMPORTANT]
+> Again because this is one of my favourite topics: If you can, set up ssh-keys for your Login and disable password based logins.
+
+In this approach, you add the public key of the remote client systems to the known keys list on the SSH server. This way, those client machines can access SSH without entering the user account password.
+
+When you have this setup, you can disable password based SSH login. Now, only the clients machines that have the specified SSH keys can access the server via SSH.
+
+Before you go for this approach, make sure that you have added your own public key to the server and it works. Otherwise, you will lock yourself out and run the risk of losing access to the remote server. Especially cumbersome if you are using a cloud server like Linode where there is no physical access to the server.
+
+> [!WARNING]
+> Before disabling ssh password authentication. Make sure your access with private key works as expected. Once confirmed, disable password authentication.
+
+Edit file with: `sudo nano /etc/ssh/sshd_config`
+
+Make sure you have following values enabled in the file:
+
+```
+PermitRootLogin no
+
+PasswordAuthentication no
+
+ChallengeResponseAuthentication no
+
+UsePAM no
+```
+
+Save file and then restart ssh service
+
+`sudo service ssh restart`
+
+or
+
+`sudo systemctl restart ssh`
+
+###### Two-factor authentication with SSH
+
+To take your servers SSH security to a higher level, you could enable two-factor authentication. In this approach, you receive a OTP (one-time password) on your mobile phone, via email or through a third-party aunthentication app.
+
+*To-Be Completed...* with MS Auth Code.  
+
+###### Conclusion
+
+You can see all the parameters of your SSH server using the command `sshd -T`
+
+This way, you can easily see if you need to change any parameter to enhance the security of the SSH server. Also remember to keep the SSH install and system updated regularly.
+
+</details>
 
 
 
