@@ -727,33 +727,42 @@ After this 300 second interval, the SSH server will send two alive messages to t
 
 ###### Allow SSH access to selected users only
 
-When it comes to security, you should follow the principal of least privilege. Don’t give rights when it is not required.
+Always follow the principle of least privilege. Do not give rights when it is not required.
 
-You probably have several users on your Linux system. Do you need to allow SSH access to all of them? Perhaps not.
+Ask yourself: Do you need to allow SSH access to all of your users? 
 
-An approach here would be to allow SSH access to a selected few users and thus restricting for all the other users.
+A best practice approach here would be to allow SSH access to only a handful of selected users and restricting for all the other users.
 
-AllowUsers User1 User2
-You may also add selected users to a new group and allow only this group to access SSH.
+`AllowUsers User1 User2`
+Note that you could also add selected users to a new group and allow only this group to access SSH.
 
-AllowGroups ssh_group
-You may also use the DenyUsers and DenyGroups to deny SSH access to certain users and groups.
+`AllowGroups ssh_group`
+Note that you could also use the DenyUsers and DenyGroups to deny SSH access to certain users and groups.
 
 ###### Disable X11 Forwarding
 
-The X11 or the X display server is the basic framework for a graphical environment. The X11 forwarding allows you to use a GUI application via SSH.
+The X11 or the X display server is the basic framework for a graphical environment forwarding, meading that it allows you to use a GUI application via SSH.
 
-Basically, the client runs the GUI application on the server but thanks to X11 forwarding, a channel is opened between the machines and the GUI applications is displayed on the client machine.
+How this works is that the client runs the GUI application on the server and then a channel is opened between the machines and the GUI applications is displayed on the client machine.
 
-The X11 protocol is not security oriented. If you don’t need it, you should disable the X11 forwarding in SSH.
+The X11 protocol is not security oriented. If you don’t need it, disable the X11 forwarding in SSH.
 
-X11Forwarding no
+`X11Forwarding no`
+
+Interesting excerpt from IBMs X11 page: 
+
+```
+An important security issue associated with the X11 server is unauthorized silent monitoring of a remote server.
+
+The xwd and xwud commands can be used to monitor X server activity because they have the ability to capture keystrokes, which can expose passwords and other sensitive data. To solve this problem, remove these executable files unless they are necessary under your configuration, or, as an alternative, change access to these commands to be root only.
+```
 
 ###### Disable password based SSH login
 
-No matter how much you try, you’ll always see bad login attempts via SSH on your Linux server. The attackers are smart and the scripts they use often take care of the default settings of Fail2Ban like tools.
+No matter how much a system is protected there is a high likelyhood of brute-force attempts via SSH. Tools like Fails2Ban are well known so it is good practice to opt-in for Key-Based Login only. 
 
-To get rid of the constant brute force attacks, you can opt for only key-based SSH login.
+> [!IMPORTANT]
+> Again because this is one of my favourite topics: If you can, set up ssh-keys for your Login and disable password based logins.
 
 In this approach, you add the public key of the remote client systems to the known keys list on the SSH server. This way, those client machines can access SSH without entering the user account password.
 
@@ -763,7 +772,6 @@ Before you go for this approach, make sure that you have added your own public k
 
 > [!WARNING]
 > Before disabling ssh password authentication. Make sure your access with private key works as expected. Once confirmed, disable password authentication.
-
 
 Edit file with: `sudo nano /etc/ssh/sshd_config`
 
@@ -780,8 +788,11 @@ UsePAM no
 ```
 
 Save file and then restart ssh service
+
 `sudo service ssh restart`
+
 or
+
 `sudo systemctl restart ssh`
 
 ###### Two-factor authentication with SSH
