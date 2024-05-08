@@ -669,60 +669,61 @@ install Fail2Ban with this command
 
 Navigate to `/etc/fail2ban/jail.conf`
 
-This is where all the **magic** is configured. You can configure things like default ban time, number of retries before banning an IP, whitelisting IPs, mail sending information etc. --> Basically you control the behavior of Fail2Ban from this file.
+This is where all the **magic** is configured. Configure things like default ban time, number of retries before banning an IP, whitelisting IPs, mail sending information and control the behavior of Fail2Ban from this file.
 
 **Note:** If you disable the password based SSH Login, using Fail2Ban doesn't really make sense. Why? Because it is intended for BruteForce, and with a Key-Only setup that wouldn't even happen (but of course, better safe than sorry). 
 
 Note: Any SSH configuration files are located at `/etc/ssh/sshd_config.`
 
-Most of the SSH hardening tips mentioned here will require you to edit this config file. It is good practice to back up the original file. After a change you also need to restart the SSH service if you make any changes to the SSH config file.
+Most of the SSH hardening tips will require editing this config file. It is good practice to back up the original file. After a change you also need to restart the SSH service if you make any changes to the SSH config file.
 
 
 ###### Disable empty passwords
 
-Yes. It is possible to have user accounts in Linux without any passwords. If those users try to use SSH, they won’t need passwords for accessing the server via SSH as well.
+It is partially possible to have user accounts in Linux without any passwords. If those users try to use SSH, they won’t need passwords for accessing the server via SSH as well.
 
-That’s a security risk. You should forbid the use of empty passwords. In the /etc/ssh/sshd_config file, make sure to set `PermitEmptyPasswords` option to no.
+This is of course a security risk and should be corrected. In the `/etc/ssh/sshd_config` file, make sure to set `PermitEmptyPasswords` option to no.
 
 ###### Change default SSH ports
 
-The default SSH port is 22 and most of the attack scripts check are written around this port only. Changing the default SSH port should add an additional security layer because the number of attacks (coming to port 22) may reduce.
+The default SSH port is 22, therefore most of the attack scripts are written around this port. Changing the default SSH port should add an additional security layer because the number of attacks (coming to port 22) may be reduce.
 
 Search for the port information in the config file and change it to something different:
 
-Example: Port 2345
-You must remember or note down the port number otherwise you may also not access your servers with SSH.
+Example: Port 1234
+
+> [!TIP]
+> Remember to note down the port number.
 
 ###### Disable root login via SSH
 
-To be honest, using server as root itself should be forbidden (By Default deactivated in UBUNTU). It is risky and leaves no audit trail. Mechanism like sudo exist for this reason only.
+Root Login is by default deactivated in UBUNTU (as it should be!). It is a grave security risk and leaves no audit trail. Think about it: No trace of who did what! A mechanism like sudo exists specifically for this reason.
+
+Always force all users to SSH via their user and completely disable root. 
 
 If you have sudo users added on your system, you should use that sudo user to access the server via SSH instead of root.
 
-You can disable the root login by modifying the PermitRootLogin option and setting it as no:
+Cisable the root login by modifying the `PermitRootLogin` option and setting it as no:
 
-PermitRootLogin no
+`PermitRootLogin = no`
 
 ###### Disable ssh protocol 1
 
-This is if you are using an older Linux distribution. Some older SSH version might still have SSH protocol 1 available. This protocol has known vulnerabilities and must not be used.
+In case an older Linux distribution is used some older SSH version might still be in use (SSH protocol 1 vs 2). This protocol has known vulnerabilities and must **not** be used.
 
-Newer SSH versions automatically have SSH protocol 2 enabled but no harm in double checking it.
+Newer SSH versions automatically have SSH protocol 2 enabled. 
 
-Protocol 2
+Check with command `ssh -V` for a Verbose output of ssh version. 
 
 ###### Configure idle timeout interval
 
-The idle timeout interval is the amount of time an SSH connection can remain active without any activity. Such idle sessions are also a security risk. It is a good idea to configure idle timeout interval.
+The idle timeout interval is the amount of time an SSH connection remains active without any activity. Idle sessions are considered a security risk. It is a good idea to configure idle timeout interval and bring this down to 5 minutes. The interval is indicated in seconds in the config file. 
 
-The timeout interval is count in seconds and by default it is 0. You may change it to 300 for keeping a five minute timeout interval.
+`ClientAliveInterval 300`will give you 300 seconds = 5 minutes of idle activity. 
 
-ClientAliveInterval 300
-After this interval, the SSH server will send an alive message to the client. If it doesn’t get a response, the connection will be closed and the end user will be logged out.
+`ClientAliveCountMax 2` will send two alive messages. 
 
-You may also control how many times it sends the alive message before disconnecting:
-
-ClientAliveCountMax 2
+After this 300 second interval, the SSH server will send two alive messages to the client. If it doesn’t get a response, the connection will be closed and the end user will be logged out.
 
 ###### Allow SSH access to selected users only
 
