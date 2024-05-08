@@ -662,48 +662,35 @@ To be completed with info from `https://www.rsyslog.com/doc/tutorials/tls.html`
 
 ### SSH Hardening
 
-##### Fail2Ban Install
-
-install Fail2Ban with this command 
-`sudo apt install fail2ban`
-
-Navigate to `/etc/fail2ban/jail.conf`
-
-This is where all the **magic** is configured. Configure things like default ban time, number of retries before banning an IP, whitelisting IPs, mail sending information and control the behavior of Fail2Ban from this file.
-
-**Note:** If you disable the password based SSH Login, using Fail2Ban doesn't really make sense. Why? Because it is intended for BruteForce, and with a Key-Only setup that wouldn't even happen (but of course, better safe than sorry). 
-
 Note: Any SSH configuration files are located at `/etc/ssh/sshd_config.`
 
 Most of the SSH hardening tips will require editing this config file. It is good practice to back up the original file. After a change you also need to restart the SSH service if you make any changes to the SSH config file.
 
---- 
+##### Fail2Ban Install Guide
+
+**Note:** If you disable the password based SSH Login, using Fail2Ban doesn't really make sense. Why? Because it is intended for BruteForce, and with a Key-Only setup that wouldn't even happen (but of course, better safe than sorry). 
+
+install Fail2Ban with the command `sudo apt install fail2ban`
 
 As always make sure your system is updated:
 
 `sudo apt update && sudo apt upgrade -y`
 
-Now, install Fail2Ban with this command:
+Navigate to `/etc/fail2ban/jail.conf`
 
-`sudo apt install fail2ban`
+Main configuration files that dictate Fail2Ban Behaviour are `/etc/fail2ban/fail2ban.conf` and `/etc/fail2ban/jail.conf` Number of retries before banning an IP, whitelisting IPs, mail sending information and general controls come from these files.
 
-Understanding Fail2Ban configuration file
+It is advised to make a copy with .local for for these conf files. Remember: the default conf files can be overwritten in updates and you would risk loosing all your settings.
 
-Main configuration files in Fail2Ban: `/etc/fail2ban/fail2ban.conf` and `/etc/fail2ban/jail.conf`. 
-
-`/etc/fail2ban/fail2ban.conf`: Configuration file for the operational settings of the Fail2Ban daemon. Settings like loglevel, log file, socket and pid file are defined here.
-
-`/etc/fail2ban/jail.conf`: This is where all the magic happens. This is the file where you can configure things like default ban time, number of reties before banning an IP, whitelisting IPs, mail sending information etc. Basically you control the behavior of Fail2Ban from this file.
-
-Now, before you go and change these files, Fail2Ban advise making a copy with .local file for these conf files. It’s because the default conf files can be overwritten in updates and you’ll lose all your settings.
-
+```
 sudo cp /etc/fail2ban/fail2ban.conf /etc/fail2ban/fail2ban.local
 sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
-Now let’s understand the jail.conf file. If you use the less command to read this big file, it may seem quite confusing. The conf file tries to explain everything with way too many comments. So, let me simplify this for you.
+```
 
-The jail.conf file is divided into services. There is a [Default] section and it applies to all services. And then you can see various services with their respective settings (if any). All these services are in brackets. You’ll see sections like [sshd], [apache-auth], [squid] etc.
+The `jail.conf` file is divided into services. There is a [Default] section which applies to all services. There are also various services with their respective setting. All these services are in brackets. You’ll see sections like [sshd], [apache-auth], [squid] etc.
 
-If I remove the comments, the default section looks like this:
+Without the respective comments the default section looks like this:
+
 ```
 [DEFAULT]
 ignorecommand =
