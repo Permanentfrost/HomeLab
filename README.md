@@ -717,28 +717,21 @@ action = %(action_)s
 ```
 
 
-Let me tell you the meaning of some of these parameters.
+Meanings explained: 
 
-bantime: Set the length of the ban. Default is 10 minutes.
-findtime: The window in which the action on an IP will be taken. Default is 10 minutes. Suppose a bad login was attempted by a certain IP at 10:30. If the same IP reaches the maximum number of retries before 10:40, it will be banned. Otherwise, the next failed attempt after 10:40 will be counted as first failed attempt.
-maxretry: The number of failed retries before an action is taken
-usedns: The “warn” setting attempts to use reverse-DNS to look up the hostname and ban it using hostname. Setting it to no will ban IPs, not hostname.
-destemail: The email address to which the alerts will be sent (needs to be configured)
-sender: The sender name in the notification email
-mta: Mail Transfer Agent used for notification email
-banaction: This parameter uses the /etc/fail2ban/action.d/iptables-multiport.conf file to set the action after maximum failed retries
-protocol: The type of traffic that will be dropped after the ban
-🗒️
+`bantime`: Set the length of the ban. Default is 10 minutes.
+`findtime`: The window in which the action on an IP will be taken. Default is 10 minutes. Suppose a bad login was attempted by a certain IP at 10:30. If the same IP reaches the maximum number of retries before 10:40, it will be banned. Otherwise, the next failed attempt after 10:40 will be counted as first failed attempt.
+`maxretry`: The number of failed retries before an action is taken
+`usedns`: The “warn” setting attempts to use reverse-DNS to look up the hostname and ban it using hostname. Setting it to no will ban IPs, not hostname.
+`destemail`: The email address to which the alerts will be sent (needs to be configured)
+`sender`: The sender name in the notification email
+`mta`: Mail Transfer Agent used for notification email
+`banaction`: This parameter uses the /etc/fail2ban/action.d/iptables-multiport.conf file to set the action after maximum failed retries
+`protocol`: The type of traffic that will be dropped after the ban
 
-If you want to make any changes for any jail (or for all the jail), like the maximum retries, ban time, find time etc., you should edit the jail.local file.
+If you want to make any changes for any jail (or for all the jail) edit the `jail.local` file.
 
-How to use Fail2Ban to secure Linux server
-
-Let me show you some of the ways you can use Fail2Ban to harden Linux security.
-
-Note that you need to be root user or have sudo access to run the fail2ban commands.
-
-Enable Fail2Ban on your server and check all running jails
+How does fail2ban work in the context of hardening: 
 
 You can use systemd commands to start and enable Fail2Ban on your Linux server:
 ```
@@ -747,49 +740,35 @@ systemctl enable fail2ban
 ```
 Once Fail2Ban is enabled, you can see the status and the active jails with fail2ban-client command:
 
-fail2ban-client status
+`fail2ban-client status`
+
 Status
 |- Number of jail: 1
 `- Jail list: sshd
-In case you were wondering, sshd jail is enabled by default.
 
-See Fail2Ban log
+Note that sshd jail is enabled by default -> which is good :). 
 
-Fail2Ban log is located at /var/log/fail2ban.log. The log files are in the following format:
+Fail2Ban logs are located at `/var/log/fail2ban.log`. 
+
+You can use the Fail2Ban client to check the status of banned IPs and clients to give you an overview. 
+
+`fail2ban-client status <jail_name>`
+
+For example, if you want to see all the "bad" ssh logins banned by Fail2Ban, use the below command. The output would show the total failed attempts and the total banned IPs.
+
 ```
-2019-03-25 07:09:08,004 fail2ban.filter [25630]: INFO [sshd] Found 139.59.69.76 – 2019-03-25 07:09:07
-2019-03-25 07:09:36,756 fail2ban.filter [25630]: INFO [sshd] Found 159.89.205.213 – 2019-03-25 07:09:36
-2019-03-25 07:09:36,757 fail2ban.filter [25630]: INFO [sshd] Found 159.89.205.213 – 2019-03-25 07:09:36
-2019-03-25 07:09:36,774 fail2ban.actions [25630]: NOTICE [sshd] Ban 159.89.205.213
-2019-03-25 07:09:36,956 fail2ban.filter [25630]: INFO [sshd] Found 182.70.253.202 – 2019-03-25 07:09:36
-2019-03-25 07:09:36,957 fail2ban.filter [25630]: INFO [sshd] Found 182.70.253.202 – 2019-03-25 07:09:36
-2019-03-25 07:09:36,981 fail2ban.actions [25630]: NOTICE [sshd] Ban 182.70.253.202
-2019-03-25 07:09:37,247 fail2ban.filter [25630]: INFO [sshd] Found 112.64.214.90 – 2019-03-25 07:09:37
-2019-03-25 07:09:37,248 fail2ban.filter [25630]: INFO [sshd] Found 112.64.214.90 – 2019-03-25 07:09:37
-2019-03-25 07:09:37,589 fail2ban.actions [25630]: NOTICE [sshd] Ban 112.64.214.90
-```
-You can see that it identifies the IPs and bans them when they cross the threshold of maximum retry.
-
-See banned IPs by Fail2Ban
-
-One way is to check the status of a certain jail. You can use the Fail2Ban client for this purpose.
-
-fail2ban-client status <jail_name>
-For example, if you have to see all the bad ssh logins banned by Fail2Ban, you can use it in the following manner. The output would show the total failed attempts and the total banned IPs.
-
-root@test-server:~# fail2ban-client status sshd
+user@test-server:~# sudo fail2ban-client status sshd
 Status for the jail: sshd
 |- Filter
-| |- Currently failed: 14
-| |- Total failed: 715
+| |- Currently failed: 33
+| |- Total failed: 700
 | `- File list: /var/log/auth.log
 `- Actions
-|- Currently banned: 7
-|- Total banned: 17
-`- Banned IP list: 177.47.115.67 118.130.133.110 68.183.62.73 202.65.154.110 106.12.102.114 61.184.247.3 218.92.1.150
-The system that is try to login via SSH from the failed login should get an error like this
+|- Currently banned: 3
+|- Total banned: 20
+`- Banned IP list: xxx.xxx.xxx.xxx.
+```
 
-ssh: connect to host 93.233.73.133 port 22: Connection refused
 How to permanently ban an IP with Fail2Ban
 
 By now you know that the ban put on an IP by Fail2Ban is a temporary one. By default it’s for 10 minutes and the attacker can try to login again after 10 minutes.
