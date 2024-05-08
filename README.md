@@ -601,7 +601,8 @@ How to Point towards syslog server?
 Edit the rsyslog Config File located in `/etc/rsyslog.conf` which also relates to `/etc/rsyslog.d/50-default.conf` 
 
 ```
-# this is the simplest forwarding action:
+#Note: Taken from Rainers Guide on rsyslog setup: 
+#this is the simplest forwarding action:
 # *.* action(type="omfwd" target="192.X.X.X" port="514" protocol="tcp")
 # it is equivalent to the following obsolete legacy format line:
 *.* @@192.0.2.1:10514 # do NOT use this any longer!
@@ -644,7 +645,9 @@ auth - authentication and authorization related commands
 
 ###### Encrypting the Log Traffic
 
-Like many things, this works via TLS(SSL) Certificate. Therefore this is needed. Check this part of the Repo/Github Page. 
+In order to transmit these log files securely and encrypted (as you should) find below the setup. 
+
+Like many things, this works also via TLS(SSL) Certificate. Therefore this is needed. Check this part of the Repo/Github Page. 
 
 To be completed with info from `https://www.rsyslog.com/doc/tutorials/tls.html`
 
@@ -666,23 +669,22 @@ install Fail2Ban with this command
 
 Navigate to `/etc/fail2ban/jail.conf`
 
-This is where all the **magic** happens. This is the file where you can configure things like default ban time, number of retries before banning an IP, whitelisting IPs, mail sending information etc. --> Basically you control the behavior of Fail2Ban from this file.
+This is where all the **magic** is configured. You can configure things like default ban time, number of retries before banning an IP, whitelisting IPs, mail sending information etc. --> Basically you control the behavior of Fail2Ban from this file.
 
-**Note:** If you disable the password based SSH login, you may not need to go for Fail2Ban. 
+**Note:** If you disable the password based SSH Login, using Fail2Ban doesn't really make sense. Why? Because it is intended for BruteForce, and with a Key-Only setup that wouldn't even happen (but of course, better safe than sorry). 
 
-The SSH configuration files are located at `/etc/ssh/sshd_config.`
+Note: Any SSH configuration files are located at `/etc/ssh/sshd_config.`
 
-Most of the SSH hardening tips mentioned here will require you to edit this config file. This is why it will be a good idea to back up the original file. You’ll also need to restart the SSH service if you make any changes to the SSH config file.
+Most of the SSH hardening tips mentioned here will require you to edit this config file. It is good practice to back up the original file. After a change you also need to restart the SSH service if you make any changes to the SSH config file.
 
-Let’s see what steps you can take to secure your SSH server.
 
-###### 1. Disable empty passwords
+###### Disable empty passwords
 
 Yes. It is possible to have user accounts in Linux without any passwords. If those users try to use SSH, they won’t need passwords for accessing the server via SSH as well.
 
 That’s a security risk. You should forbid the use of empty passwords. In the /etc/ssh/sshd_config file, make sure to set `PermitEmptyPasswords` option to no.
 
-###### 2. Change default SSH ports
+###### Change default SSH ports
 
 The default SSH port is 22 and most of the attack scripts check are written around this port only. Changing the default SSH port should add an additional security layer because the number of attacks (coming to port 22) may reduce.
 
@@ -691,7 +693,7 @@ Search for the port information in the config file and change it to something di
 Example: Port 2345
 You must remember or note down the port number otherwise you may also not access your servers with SSH.
 
-###### 3. Disable root login via SSH
+###### Disable root login via SSH
 
 To be honest, using server as root itself should be forbidden (By Default deactivated in UBUNTU). It is risky and leaves no audit trail. Mechanism like sudo exist for this reason only.
 
@@ -701,7 +703,7 @@ You can disable the root login by modifying the PermitRootLogin option and setti
 
 PermitRootLogin no
 
-###### 4. Disable ssh protocol 1
+###### Disable ssh protocol 1
 
 This is if you are using an older Linux distribution. Some older SSH version might still have SSH protocol 1 available. This protocol has known vulnerabilities and must not be used.
 
@@ -709,7 +711,7 @@ Newer SSH versions automatically have SSH protocol 2 enabled but no harm in doub
 
 Protocol 2
 
-###### 5. Configure idle timeout interval
+###### Configure idle timeout interval
 
 The idle timeout interval is the amount of time an SSH connection can remain active without any activity. Such idle sessions are also a security risk. It is a good idea to configure idle timeout interval.
 
@@ -722,7 +724,7 @@ You may also control how many times it sends the alive message before disconnect
 
 ClientAliveCountMax 2
 
-###### 6. Allow SSH access to selected users only
+###### Allow SSH access to selected users only
 
 When it comes to security, you should follow the principal of least privilege. Don’t give rights when it is not required.
 
@@ -736,7 +738,7 @@ You may also add selected users to a new group and allow only this group to acce
 AllowGroups ssh_group
 You may also use the DenyUsers and DenyGroups to deny SSH access to certain users and groups.
 
-###### 7. Disable X11 Forwarding
+###### Disable X11 Forwarding
 
 The X11 or the X display server is the basic framework for a graphical environment. The X11 forwarding allows you to use a GUI application via SSH.
 
@@ -746,15 +748,7 @@ The X11 protocol is not security oriented. If you don’t need it, you should di
 
 X11Forwarding no
 
-###### 8. Mitigate brute force attacks automatically
-
-To thwart SSH bruteforce attacks, you can use a security tool like Fail2Ban.
-
-Fail2Ban checks the failed login attempts from different IP addresses. If these bad attempts cross a threshold within a set time interval, it bans the IP from accessing SSH for a certain time period.
-
-You can configure all these parameters as per your liking and requirement. I have written a detailed introductory guide on using Fail2Ban which you should read.
-
-###### 9. Disable password based SSH login
+###### Disable password based SSH login
 
 No matter how much you try, you’ll always see bad login attempts via SSH on your Linux server. The attackers are smart and the scripts they use often take care of the default settings of Fail2Ban like tools.
 
@@ -772,7 +766,7 @@ Before you go for this approach, make sure that you have added your own public k
 
 Edit file with: `sudo nano /etc/ssh/sshd_config`
 
-Please make sure you have following values enabled in the file:
+Make sure you have following values enabled in the file:
 
 ```
 PermitRootLogin no
@@ -789,26 +783,23 @@ Save file and then restart ssh service
 or
 `sudo systemctl restart ssh`
 
-###### 10. Two-factor authentication with SSH
+###### Two-factor authentication with SSH
 
 To take SSH security to the next level, you may also enable two-factor authentication. In this approach, you receive a one-time password on your mobile phone, email or through a third-party aunthentication app.
 
 You may read about setting up two-factor authentication with SSH here.
 
-Conclusion
+###### Conclusion
 
-You can see all the parameters of your SSH server using this command:
+You can see all the parameters of your SSH server using the command `sshd -T`
 
-sshd -T
-This way, you can easily see if you need to change any parameter to enhance the security of the SSH server.
-
-You should also keep the SSH install and system updated.
+This way, you can easily see if you need to change any parameter to enhance the security of the SSH server. Also remember to keep the SSH install and system updated regularly.
 
 </details>
 
 <details> 
 <summary> Fail2Ban DetailInstall </summary>
-## Fail2Ban Detailierte Anleitung
+## Fail2Ban 
 
 Install Fail2Ban on Ubuntu & Debian
 
@@ -945,21 +936,6 @@ This poses a security risk because attackers could use a script that tries loggi
 
 So, how do you put a permanent ban using Fail2Ban? There is no clear answer for that.
 
-Starting Fail2Ban version 0.11, the ban time will be automatically calculated and the persistent IPs will have their ban time increased exponentially.
-
-But if you check your Fail2Ban version, you probably are running the version 0.10.
-
-fail2ban-server --version 
-Fail2Ban v0.10.2
-Copyright (c) 2004-2008 Cyril Jaquier, 2008- Fail2Ban Contributors
-Copyright of modifications held by their respective authors.
-Licensed under the GNU General Public License v2 (GPL).
-In earlier versions, you could use a negative bantime (bantime = -1) and that would have been equivalent to a permanent ban but if you try this method, you’ll probably see an error like ‘Starting fail2ban: ERROR NOK: (‘database disk image is malformed’,)’.
-
-One not so clean workaround would be to increase the bantime to something like 1 day, 1 week, 1 month or 1 year. This could circumvent the problem until the new version is available on your system.
-
-UptimeRobot: Free Website Monitoring Service
-Start monitoring in 30 seconds. Use advanced SSL, keyword and cron monitoring. Get notified by email, SMS, Slack and more. Get 50 monitors for FREE!
 How to unban IP blocked by Fail2Ban
 
 First check if the IP is being blocked or not. Since Fail2Ban works on the iptables, you can look into the iptable to view the IPs being banned by your server:
