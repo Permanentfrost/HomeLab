@@ -130,6 +130,33 @@ also: `sar -n DEV 30 2`
 
 </details>
 
+#### Log-Files
+
+In your setup and configs you will be doing a lot of troubleshooting and digging into the system. As such it is key to "**Know your Logs!**"
+
+Below a small list of the most important logs and what they do: 
+
+- **Authorization Log**
+  - `Location: /var/log/auth.log`
+  - This log records all authorization mechanisms, including password checks, usage of the sudo command, and remote access attempts.
+
+- **Daemon Log**
+  - `Location: /var/log/daemon.log`
+  - This log captures activities of background services (mostly known as daemons) which operate without direct user engagement. Stuff like managing the display server, SSH connections, print jobs, Bluetooth services + others.
+
+- **Debug Log**
+  - `Location: /var/log/debug`
+  - This log collects detailed debugging information related to the OS and various applications for troubleshooting.
+
+- **Kernel Log**
+  - `Location: /var/log/kern.log`
+  - This log is dedicated to messages directly from the Linux kernel, providing insights into the core system operations.
+
+- **System Logs**
+  - `Location: /var/log/syslog` 
+  - This log includes a broader array of system information. If details are not in other logs, they are likely to be found here.
+  - Also try `journalctl` which pulls from `journald` as in `journalctl --since "1 hour ago"`
+ 
 #### Encryption 
 
 ##### Local File Encryption via GnuPG
