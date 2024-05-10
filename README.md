@@ -1025,14 +1025,21 @@ This way, you can easily see if you need to change any parameter to enhance the 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Writeup Help
  
-<details> 
-
-<summary> Writeup Help </summary>
-
-
-
 > [!NOTE]  
 > Useful information that users should know, even when skimming content.
 
@@ -1048,12 +1055,6 @@ This way, you can easily see if you need to change any parameter to enhance the 
 > [!CAUTION]
 > 
 > Advises about risks or negative outcomes of certain actions.
-
-
-
-
-</details>
-
 
 
 
