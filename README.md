@@ -388,24 +388,31 @@ Of course this makes a lot more sense in a `cron-job` context that runs daily/we
 
 -System Logs Analysis: Analyze various system logs, including application logs and web server logs, for any suspicious activities or anomalies. You could `grep`for certain keywords and let the appropiate lines be mailed to you. 
 
-###### Fail2Ban cron-job 
+###### Daily security-report cron
 
-*TBC...*
+Add below to the cron job
 
-###### login and auth file cron-job 
+```
+0 0 * * * grep 'Accepted\|Failed' /path/to/auth.file /path/to/fail2ban.log /var/log/auth.log /var/log/syslog > /path/to/outputfile
+```
 
-*TBC...*
+> [!CAUTION]
+> There is a security risk transmitting this unencrypted. See below how to mitigate.
 
-###### Temperature cron-job 
+Transmitting these log entries unencrypted is a risk. If the logs are intercepted during transmission, an attacker could gain information about your system's users and their activities. 
 
-*TBC...*
+To mitigate this risk, you could:
+
+- Use secure, encrypted protocols for transmission (like SCP, SFTP, or HTTPS).
+
+- Encrypt the log files before transmission, using tools like `gpg`.
+
+- Only transmit the logs over networks you trust.(But still, be careful - better to encrypt) 
+
 
 ###### Daily system-report cron 
 
 It would make sense to receive a daily status report of how the system is doing (include all possible sensor readings etc.) . Such is the purpose of below report 
-
-
-Sure, you can create a script that runs these commands and then sends the output via email. Here's an example of how you could set this up:
 
 ```
 #!/bin/bash
@@ -428,7 +435,7 @@ This script will run every day at midnight. Replace `/path/to/` with the actual 
 
 Note that you need to have the `mail` command installed and properly configured (also in this guide) to send emails. As far as I know, `vcgencmd` is specific to Raspberry Pi devices, so make sure you're running this on a Raspberry Pi, or remove those lines if you're not. 
 
-Test your script manually before adding it to cron to make sure it works as expected: 
+Always test your script manually before adding it to cron to make sure it works as expected: 
 
 `cd` into the place where you saved the script. Run it directly with the command `./daily_report.sh`
 
