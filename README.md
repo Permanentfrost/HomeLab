@@ -196,6 +196,8 @@ Reminder:
 
 - Asterisk `*` means "every possible value" Example `month = *` means the command will run every month
 
+- In principle you can save these scripts everywhere. However, there are cron-designated folders located on the system with naming scheme such as `cron.daily` and `cron.weekly`. Save your scripts there as best practice! Make sure the folder and script are executable and that running the folder or script is actually in the cron job. 
+
 ```
 first number = minutes.
 The second number = hours (24 hour format).
@@ -397,6 +399,44 @@ Of course this makes a lot more sense in a `cron-job` context that runs daily/we
 ###### Temperature cron-job 
 
 *TBC...*
+
+###### Daily system-report cron 
+
+It would make sense to receive a daily status report of how the system is doing (include all possible sensor readings etc.) . Such is the purpose of below report 
+
+
+Sure, you can create a script that runs these commands and then sends the output via email. Here's an example of how you could set this up:
+
+```
+#!/bin/bash
+
+# Run the commands
+OUTPUT=$(df -T && free -h && uptime && vcgencmd measure temp && vcgencmd get throttled && netstat tuln)
+
+# Send the output via email
+echo "$OUTPUT" | mail -s "Daily Report" RECIPIENT
+```
+Save this script to a file named `daily_report.sh` then make it executable with `chmod +x daily_report.sh`.
+
+Then add this script to the daily cron job. Open the crontab file with `crontab -e` and add the following line:
+
+```
+0 0 * * * /path/to/daily_report.sh
+```
+
+This script will run every day at midnight. Replace `/path/to/` with the actual path to the `daily_report.sh` script and `RECIPIENT` with the actual email address.
+
+Note that you need to have the `mail` command installed and properly configured (also in this guide) to send emails. As far as I know, `vcgencmd` is specific to Raspberry Pi devices, so make sure you're running this on a Raspberry Pi, or remove those lines if you're not. 
+
+Test your script manually before adding it to cron to make sure it works as expected: 
+
+`cd` into the place where you saved the script. Run it directly with the command `./daily_report.sh`
+
+
+```
+
+
+```
 
 ## Networking 
 
