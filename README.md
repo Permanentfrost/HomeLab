@@ -8,9 +8,6 @@ This "Guide" should document all knowledge I find useful for setting up, configu
 
 #### System Infos and Diagnostics
 
-<details> 
-<summary> Optimization and Monitoring Tipps </summary>
-
 ##### Bluetooth
 
 Start and stop the module as follows (power optimization): 
@@ -128,7 +125,7 @@ You could create a script to read this centigrade value regularly and use as you
 
 also: `sar -n DEV 30 2`
 
-</details>
+
 
 #### Log-Files
 
@@ -467,8 +464,6 @@ Always test your script manually before adding it to cron to make sure it works 
 ### pfsense Setup 
 
 ## Proxmox Setup
-<details>
-<summary> Hardening Guide </summary>
 
 #### Host Security
 
@@ -550,12 +545,6 @@ Always test your script manually before adding it to cron to make sure it works 
    - Protect off-site backups against unauthorized changes.
    - Implement access controls and integrity checks.
   
-</details>
-
-
-
-<details> 
- <summary> Obtain SSL Certificates </summary>
 
 ##### SSL Certificate via Let's Encrypt
 
@@ -608,12 +597,7 @@ The `printf` command generates a minimal configuration file with the following c
 
 Of course: For production environments, it's recommended to use certificates issued by a trusted Certificate Authority (CA) like Lets Encrypt.
 
-</details>
-
-<details> 
-<summary> rsyslog server </summary>
-
-##### Setting up a Pi rsyslog server 
+##### Setting up a rsyslog server 
 
 ###### Target
 
@@ -725,14 +709,6 @@ Like many things, this works also via TLS(SSL) Certificate. Therefore this is ne
 
 To be completed with info from `https://www.rsyslog.com/doc/tutorials/tls.html`
 
-
-</details>
-
-
-
-
-<details>
-<summary> SSH Hardening </summary>
 
 ### SSH Hardening
 
@@ -1019,7 +995,6 @@ You can see all the parameters of your SSH server using the command `sshd -T`
 
 This way, you can easily see if you need to change any parameter to enhance the security of the SSH server. Also remember to keep the SSH install and system updated regularly.
 
-</details>
 
 
 
