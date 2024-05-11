@@ -153,6 +153,15 @@ Below a small list of the most important logs and what they do:
   - `Location: /var/log/syslog` 
   - This log includes a broader array of system information. If details are not in other logs, they are likely to be found here.
   - Also try `journalctl` which pulls from `journald` as in `journalctl --since "1 hour ago"`
+
+- **Monitor / View logs**
+  - There are several commands to make viewing or tracking the logs easier. 
+  - `cat` of course to just read the log file
+  - `less`command opens the file in a "less" environment, navigate through it with arrow keys
+  - `tail -n 15` will show you the last 15 log entries, conversely `head -n 15` the first 15 entries.
+  - `tail -f` will "follow" and keep printing the new entries.
+
+
  
 #### Encryption 
 
