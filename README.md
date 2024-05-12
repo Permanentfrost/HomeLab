@@ -28,6 +28,12 @@ By adding the below into your crontab you can track this. This will runn every h
 
 `0 * * * * uptime >> /path/to/uptime_log.txt`
 
+> [!TIP]  
+> Make sure to invoke the crontab as `sudo crontab -e`. Otherwise you will edit the USERs crontab. 
+
+Check if it worked by running `sudo crontab -u root -l` to list the ACTIVE cron jobs. 
+
+
 ##### Bluetooth
 
 Start and stop the module as follows (power optimization): 
