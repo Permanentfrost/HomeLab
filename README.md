@@ -8,6 +8,18 @@ This "Guide" should document all knowledge I find useful for setting up, configu
 
 #### System Infos and Diagnostics
 
+##### Change hostname
+
+You may want to change the hostname for identification purposes so that it fits a naming scheme. 
+
+The command `hostnamectl`displays the current hostname configuration in detail. 
+
+You can change it the command `hostnamectl set-hostname new-hostname`
+
+Also update the "pretty" hostname using `hostnamectl set-hostname "new-hostname" --pretty` alongside so that this matches and is consistent. This is presented to the user only but makes it clean and concise. 
+
+From here on, `reboot` and verify again with `hostnamectl` . 
+
 ##### Bluetooth
 
 Start and stop the module as follows (power optimization): 
