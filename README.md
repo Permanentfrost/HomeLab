@@ -463,7 +463,7 @@ It would make sense to receive a daily status report of how the system is doing 
 #!/bin/bash
 
 # Run the commands
-OUTPUT=$(df -T && free -h && uptime && vcgencmd measure temp && vcgencmd get throttled && netstat tuln)
+OUTPUT=$(df -TH && free -h && uptime && vcgencmd measure_temp && vcgencmd get_throttled && ss -tulnp)
 
 # Send the output via email
 echo "$OUTPUT" | mail -s "Daily Report" RECIPIENT
