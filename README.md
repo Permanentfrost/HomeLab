@@ -463,7 +463,7 @@ It would make sense to receive a daily status report of how the system is doing 
 #!/bin/bash
 
 # Run the commands
-OUTPUT=$(df -TH && free -h && uptime && vcgencmd measure_temp && vcgencmd get_throttled && ss -to state established && ss -tulnp)
+OUTPUT=$(uptime && vcgencmd measure_temp && vcgencmd get_throttled && df -TH && free -h && ss -to state established && ss -tulnp)
 
 # Send the output via email
 echo "$OUTPUT" | mail -s "Daily Report" RECIPIENT
@@ -485,10 +485,6 @@ Always test your script manually before adding it to cron to make sure it works 
 `cd` into the place where you saved the script. Run it directly with the command `./daily_report.sh`
 
 
-```
-
-
-```
 
 ## Networking 
 
