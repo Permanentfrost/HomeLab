@@ -20,6 +20,14 @@ Also update the "pretty" hostname using `hostnamectl set-hostname "new-hostname"
 
 From here on, `reboot` and verify again with `hostnamectl` . 
 
+##### Uptime Tracking
+
+You may want to track your systems uptime (how long is/was it running before crash). 
+
+By adding the below into your crontab you can track this. This will runn every hour and write the `uptime` command output into the file uptime_log.txt.
+
+`0 * * * * uptime >> /path/to/uptime_log.txt`
+
 ##### Bluetooth
 
 Start and stop the module as follows (power optimization): 
