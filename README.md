@@ -66,7 +66,7 @@ Commands Explained:
 `of=/dev/sda` sets our output file
 
 Note: 
-If you listed the devices in the `/dev` folder you probably noticed other partitions named mmcblk0p1 and mmcblk0p2. We want the **entire** SD card and that is why we need to reference mmcblk0. The same goes the the destination sda, you may have seen sda1, sda2,
+If you listed the devices in the `/dev` folder you probably noticed other partitions named `mmcblk0p1` and `mmcblk0p2`. You want the **entire** SD card backed-up and that is why you need to reference `mmcblk0`. The same goes for the destination `sda` as you may have seen `sda1` and `sda2`. 
 
 
 ###### HardDrive
