@@ -482,7 +482,9 @@ Note that you need to have the `mail` command installed and properly configured 
 
 Always test your script manually before adding it to cron to make sure it works as expected: 
 
-`cd` into the place where you saved the script. Run it directly with the command `./daily_report.sh`
+`cd` into the place where you saved the script. Run it directly with the command `./daily_report.sh`. 
+
+Note that `./` needs to preceed the script name. 
 
 
 
