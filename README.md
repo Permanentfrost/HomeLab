@@ -109,6 +109,19 @@ be sure to substitute a valid folder name for `<user>`
 
 This tells linux at every boot sequence to turn the power save off. 
 
+You could also create a regular ping to a device OR router so that the raspberry would stay awake. 
+
+
+```
+0 */3 * * * ping -c 1 <router_ip_address> >/dev/null 2>&1
+```
+
+Replace `<router_ip_address>` with the IP address of your router.
+
+Explanation of the job: 
+
+The command `ping -c 1 <router_ip_address> >/dev/null 2>&1` pings the router once (`-c 1`) count = 1 and redirects the output to `/dev/null` to suppress any output. This command then runs every 3 hours as per the cron schedule.
+
 ##### Temperature Management
 
 Display: Ubuntu Server `/sys/class/thermal/thermal_zone0$` cat temp --> shows in centigrade
