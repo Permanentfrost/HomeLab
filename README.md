@@ -45,6 +45,17 @@ sudo systemctl disable bluetooth
 
 ##### Backup Management
 
+###### General Mounting Knowledge
+
+Before you proceed with any Backup/External-Drive related task it essential to know how to mount, format and use drives via the command line. The general steps outlined follow the procedure of creating a partition, formating the drive, setting up the mount points and then actually using it in the following sub-chapters (backups etc.). 
+
+First, get an overview of the actual drives. Do this with the command `sudo lshw -C disk` lshw=Hardware-Listener Class "Disk". Take note of the `logical name` In my raspberries case ` /dev/mmcblk0`. This is used throughout the whole mounting,formating, partinioning and using process.
+
+---*TBC with chapters on -> Formatting and then mounting the drive.*---
+
+
+
+
 ###### Bootable SD Backup
 
 You can backup directly from the running RasPi onto a SD Card and then boot from there in case the other one fails. 
