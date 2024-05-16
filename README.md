@@ -1,3 +1,4 @@
+  sudo nano -Bw /etc/fstab
 # HomeLab Best-practices and Guide
 
 This "Guide" should document all knowledge I find useful for setting up, configuring and navigating in a HomeLab Setup (Cybersecurity-Focused) 
@@ -91,10 +92,24 @@ ASSUMPTION: `LOGICALNAME = /dev/sdb1`
 
 **Mounting the Drive**  
 
+> [!IMPORTANT]
+> Create a mount point before mounting!
 
+**After (!)** partitioning and formatting choose a mount point. This will be the location from which the drive is accessed. Ubuntu Default is "/media". Ubuntu suggests using "/media/mynewdrive"
 
+Create the directory with `sudo mkdir /media/mynewdrive`
 
----*TBC Mounting*---
+Now to set up automatic mount at boot edit the `fstab`file (file systems table -> lists the filesystems and directories)
+
+Use the command `sudo nano -Bw /etc/fstab`
+
+> [!WARNING]
+> Always use `-Bw`. This will create a file backup. 
+
+Add this line to the end (for ext4 file system) `/dev/sdb1    /media/mynewdrive   ext4    defaults     0        2`
+Add this line to the end (for fat32 file system): `/dev/sdb1    /media/mynewdrive   vfat    defaults     0        2`
+
+After you are done, simply reboot for the changes to take effect. 
 
 
 ###### Bootable SD Backup
