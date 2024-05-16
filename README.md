@@ -261,7 +261,18 @@ The third number = days of the month.
 The fourth number = months.
 The fifth number = days of the week.
 ```
-   
+
+Tip on timestamps and crontab:
+
+For occasions where you will `echo` something with the crontab and you need timestamps you can refer to below commands. 
+
+-YYYY-MM-DD	= `date -I`	
+
+-YYYY-MM-DD_hh:mm:ss	= `date +%F_%T`	
+
+-YYYYMMSShhmmssnnnnnnnnn (nanoseconds) = `date +%Y%m%d%H%M%S%N`
+
+
 #### User Management
 
 ##### User deletion incl. homefolder
