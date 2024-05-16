@@ -49,11 +49,52 @@ sudo systemctl disable bluetooth
 
 Before you proceed with any Backup/External-Drive related task it essential to know how to mount, format and use drives via the command line. The general steps outlined follow the procedure of creating a partition, formating the drive, setting up the mount points and then actually using it in the following sub-chapters (backups etc.). 
 
-First, get an overview of the actual drives. Do this with the command `sudo lshw -C disk` lshw=Hardware-Listener Class "Disk". Take note of the `logical name` In my raspberries case ` /dev/mmcblk0`. This is used throughout the whole mounting,formating, partinioning and using process.
-
----*TBC with chapters on -> Formatting and then mounting the drive.*---
+First, get an overview of the actual drives. Do this with the command `sudo lshw -C disk` lshw=Hardware-Listener Class "Disk". Take note of the `logical name`. In my case this is ` /dev/mmcblk0`. This is used throughout the whole mounting,formating, partinioning and using process.
 
 
+**Command Line Partitioning**  
+
+We will use the tool `parted` for this purpose. 
+
+Start parted with `sudo parted LOGICAL NAME`
+
+create a new disklabel `(parted) mklabel gpt` --> Note GPT here means GPT (GUID Partition Table) which allows certain functionalities that standard MBR would not (large, multiple partitions). 
+
+Then we need to set the default unit on this drive to either Terrabyte or Gigabyte `(parted) unit TB`
+
+Create one partition occupying all the space from 0 to 2 terrabytes with command `parted LOGICALNAME unit TB mkpart primary ext4 0 2`
+
+Breakdown: 
+
+```
+Starts the parted utility on the specified disk (/dev/sdX).
+Sets the unit to terabytes (TB) for all subsequent operations within this parted session.
+Creates a primary partition intended for the ext4 file system.
+The new partition starts at 0 TB (the very beginning of the disk).
+The partition ends at 2 TB, making it a 2 terabyte partition.
+```
+
+Check, verify and then quit `parted` with `(parted) print` followed by `(parted) quit`
+
+*Alternatively you can use `fdisk`* 
+
+Start with `sudo fdisk LOGICALNAME`. a selection will appear. choose `n`= add a new partition. Then select `p   primary partition (1-4)` then enter 1 (will be the only partition) 
+
+
+**Command Line Formatting**  
+
+ASSUMPTION: `LOGICALNAME = /dev/sdb1`
+
+`sudo mkfs -t ext4 /dev/sdb1`  Note: ext4 is ubuntu/debians standard filesystem. 
+`sudo mkfs -t fat32 /dev/sdb1` Note: use this for interoperability with windows. 
+
+
+**Mounting the Drive**  
+
+
+
+
+---*TBC Mounting*---
 
 
 ###### Bootable SD Backup
