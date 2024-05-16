@@ -106,6 +106,7 @@ Use the command `sudo nano -Bw /etc/fstab`
 > Always use `-Bw`. This will create a file backup. 
 
 Add this line to the end (for ext4 file system) `/dev/sdb1    /media/mynewdrive   ext4    defaults     0        2`
+
 Add this line to the end (for fat32 file system): `/dev/sdb1    /media/mynewdrive   vfat    defaults     0        2`
 
 After you are done, simply reboot for the changes to take effect. 
