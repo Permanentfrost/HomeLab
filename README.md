@@ -1,4 +1,3 @@
-  sudo nano -Bw /etc/fstab
 # HomeLab Best-practices and Guide
 
 This "Guide" should document all knowledge I find useful for setting up, configuring and navigating in a HomeLab Setup (Cybersecurity-Focused) 
