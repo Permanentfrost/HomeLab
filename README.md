@@ -290,6 +290,19 @@ Process for setup:
 
 *To be completed...*
 
+##### Encrypted / Secure file transfer via SSH
+
+You will occasionally transfer data, via machines. For this you can use Secure Copy Protocol (SCP) which opens an encrypted tunnel and then copies (as in `cp`) the data. 
+
+
+
+
+> [!WARNING]
+> Avoid FTP protocol at all costs: see below explanation.  
+
+FTP was not designed with security in mind. It is widely regarded as an insecure protocol because it uses clear-text usernames and passwords for authentication and lacks encryption. Consequently, data transmitted via FTP is susceptible to sniffing, spoofing, and brute force attacks, among other basic attack methods.
+
+
 ##### crontab
 
 crontab allows for planned execution of commands and scripts. 
