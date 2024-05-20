@@ -294,6 +294,9 @@ Process for setup:
 
 You will occasionally transfer data, via machines. For this you can use Secure Copy Protocol (SCP) which opens an encrypted tunnel and then copies (as in `cp`) the data. 
 
+Syntax is `scp + source + target` so assuming you have the SSH Keys set up already an example would be: 
+
+`scp user@123.123.123.123:/path/to/myfile.txt /home/user/Downloads/` 
 
 
 
