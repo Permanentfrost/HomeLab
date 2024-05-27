@@ -2,29 +2,10 @@
 
 This "Guide" should document all knowledge I find useful for setting up, configuring and navigating in a HomeLab Setup (Cybersecurity-Focused) 
 
-https://github.com/Permanentfrost/HomeLab/blob/main/README.md
-
+*Revised structure to be completed. by end of May.*
 
 
 **Most important: Have fun doing it!**
-
-Test
-
-1. [General Linux Tips](#general-linux-tips)
-2. [System Infos and Diagnostics](#system-infos-and-diagnostics)
-   - [Change hostname](#change-hostname)
-   - [Uptime Tracking](#uptime-tracking)
-   - [Bluetooth](#bluetooth)
-   - [Backup Management](#backup-management)
-   - [General Mounting Knowledge](#general-mounting-knowledge)
-   - [Bootable SD Backup](#bootable-sd-backup)
-   - [HardDrive](#harddrive)
-   - [Prevent Auto-Sleep](#prevent-auto-sleep)
-   - [Temperature Management](#temperature-management)
-   - [Common Parameters](#common-parameters)
-   - [Log-Files](#log-files)
-
-
 
 ## General Linux Tips 
 
