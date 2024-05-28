@@ -4,235 +4,13 @@ This "Guide" should document all knowledge I find useful for setting up, configu
 
 **Most important: Have fun doing it!**
 
-*Note: as part of the restructuring May 2024. Some chapters will be empty.* 
+*Note: as part of the restructuring May 2024. Some chapters will be empty.*  
+
+
 
 # System Management
 
 ## General Linux Tips
-## System Infos and Diagnostics
-## System Performance Tuning
-## Log Files
-## crontab
-## Misc Controls CLI
-
-# Storage and Filesystems
-
-## General Mounting Knowledge
-## Backup Management
-## Bootable SD Backup
-## HardDrive Management
-
-# Security
-
-## Encryption
-## User Management
-## Host Security
-## SSH Hardening
-
-# Networking
-
-## Network Basics
-## VLAN Setup
-## Networking Tools and Commands
-
-# Server Setup and Management
-
-## pfsense Setup
-## Proxmox Setup
-## Containerization and Virtualization
-
-# Additional Topics
-
-## Mail Setup
-## Daily Reports
-## Miscellaneous Tips
-
-
-
-
-
--------------------
--------------------
-
-
-## General Linux Tips 
-
-#### System Infos and Diagnostics
-
-##### Change hostname
-
-You may want to change the hostname for identification purposes so that it fits a naming scheme. 
-
-The command `hostnamectl`displays the current hostname configuration in detail. 
-
-You can change it the command `hostnamectl set-hostname new-hostname`
-
-Also update the "pretty" hostname using `hostnamectl set-hostname "new-hostname" --pretty` alongside so that this matches and is consistent. This is presented to the user only but makes it clean and concise. 
-
-From here on, `reboot` and verify again with `hostnamectl` . 
-
-##### Uptime Tracking
-
-You may want to track your systems uptime (how long is/was it running before crash). 
-
-By adding the below into your crontab you can track this. This will runn every hour and write the `uptime` command output into the file uptime_log.txt.
-
-`0 * * * * uptime >> /path/to/uptime_log.txt`
-
-> [!TIP]  
-> Make sure to invoke the crontab as `sudo crontab -e`. Otherwise you will edit the USERs crontab. 
-
-Check if it worked by running `sudo crontab -u root -l` to list the ACTIVE cron jobs. 
-
-
-##### Bluetooth
-
-Start and stop the module as follows (power optimization): 
-```
-sudo systemctl status bluetooth
-sudo systemctl stop bluetooth
-sudo systemctl disable bluetooth
-```
-
-##### Backup Management
-
-###### General Mounting Knowledge
-
-Before you proceed with any Backup/External-Drive related task it essential to know how to mount, format and use drives via the command line. The general steps outlined follow the procedure of creating a partition, formating the drive, setting up the mount points and then actually using it in the following sub-chapters (backups etc.). 
-
-First, get an overview of the actual drives. Do this with the command `sudo lshw -C disk` lshw=Hardware-Listener Class "Disk". Take note of the `logical name`. In my case this is ` /dev/mmcblk0`. This is used throughout the whole mounting,formating, partinioning and using process.
-
-
-**Command Line Partitioning**  
-
-We will use the tool `parted` for this purpose. 
-
-Start parted with `sudo parted LOGICAL NAME`
-
-create a new disklabel `(parted) mklabel gpt` --> Note GPT here means GPT (GUID Partition Table) which allows certain functionalities that standard MBR would not (large, multiple partitions). 
-
-Then we need to set the default unit on this drive to either Terrabyte or Gigabyte `(parted) unit TB`
-
-Create one partition occupying all the space from 0 to 2 terrabytes with command `parted LOGICALNAME unit TB mkpart primary ext4 0 2`
-
-Breakdown: 
-
-```
-Starts the parted utility on the specified disk (/dev/sdX).
-Sets the unit to terabytes (TB) for all subsequent operations within this parted session.
-Creates a primary partition intended for the ext4 file system.
-The new partition starts at 0 TB (the very beginning of the disk).
-The partition ends at 2 TB, making it a 2 terabyte partition.
-```
-
-Check, verify and then quit `parted` with `(parted) print` followed by `(parted) quit`
-
-*Alternatively you can use `fdisk`* 
-
-Start with `sudo fdisk LOGICALNAME`. a selection will appear. choose `n`= add a new partition. Then select `p   primary partition (1-4)` then enter 1 (will be the only partition) 
-
-
-**Command Line Formatting**  
-
-ASSUMPTION: `LOGICALNAME = /dev/sdb1`
-
-`sudo mkfs -t ext4 /dev/sdb1`  Note: ext4 is ubuntu/debians standard filesystem. 
-`sudo mkfs -t fat32 /dev/sdb1` Note: use this for interoperability with windows. 
-
-
-**Mounting the Drive**  
-
-> [!IMPORTANT]
-> Create a mount point before mounting!
-
-**After (!)** partitioning and formatting choose a mount point. This will be the location from which the drive is accessed. Ubuntu Default is "/media". Ubuntu suggests using "/media/mynewdrive"
-
-Create the directory with `sudo mkdir /media/mynewdrive`
-
-Now to set up automatic mount at boot edit the `fstab`file (file systems table -> lists the filesystems and directories)
-
-Use the command `sudo nano -Bw /etc/fstab`
-
-> [!WARNING]
-> Always use `-Bw`. This will create a file backup. 
-
-Add this line to the end (for ext4 file system) `/dev/sdb1    /media/mynewdrive   ext4    defaults     0        2`
-
-Add this line to the end (for fat32 file system): `/dev/sdb1    /media/mynewdrive   vfat    defaults     0        2`
-
-After you are done, simply reboot for the changes to take effect. 
-
-
-###### Bootable SD Backup
-
-You can backup directly from the running RasPi onto a SD Card and then boot from there in case the other one fails. 
-
-1.USB SD card device will be located under `/dev`
-
-2.`sda` will be the card
-
-3.`sudo dd bs=4M if=/dev/mmcblk0 of=/dev/sda`
-
-Commands Explained:
-
-`dd` command reads input from a file or a device, and writes it to another file or device
-
-`bs=4M` sets our block size to 4 megabytes
-
-`if=/dev/mmcblk0` sets our input file
-
-`of=/dev/sda` sets our output file
-
-Note: 
-If you listed the devices in the `/dev` folder you probably noticed other partitions named `mmcblk0p1` and `mmcblk0p2`. You want the **entire** SD card backed-up and that is why you need to reference `mmcblk0`. The same goes for the destination `sda` as you may have seen `sda1` and `sda2`. 
-
-
-###### HardDrive
-```
-#!/bin/bash
-# Source directory (Raspberry Pi filesystem)
-SOURCE="/"
-# Destination directory (external SSD mount point)
-DESTINATION="/mnt/external_ssd"
-# Log file path
-LOG_FILE="/var/log/backup.log"
-# Execute rsync command
-rsync -av --delete --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} $SOURCE $DESTINATION >> $LOG_FILE 2>&1
-```
-
-`SOURCE`: Specifies the root directory of your Raspberry Pi's filesystem. Change this if your filesystem is located elsewhere.
-
-`DESTINATION`: Specifies the mount point of your external SSD. Adjust this to match the actual mount point of your SSD.
-
-`LOG_FILE`: Specifies the path where the log of the backup operation will be saved.
-
-`rsync`: Performs the actual synchronization. Here's a breakdown of the options used:
-
-`-a`: Archive mode, preserves permissions, ownership, timestamps, etc.
-
-`-v`: Verbose mode, shows the files being copied.
-
-`--delete`: Deletes files from the destination that no longer exist in the source (ensures an exact mirror).
-
-`--exclude`: Excludes certain directories from being copied. This list includes system directories that are not necessary for a backup.
-
-To set this up as a weekly cron job use the following steps:
-
-Save the script to a file, for example, `backup_script.sh`.
-
-Make the script executable with the command `chmod +x backup_script.sh`
-
-Open your crontab file with the command: crontab -e.
-
-Add the following line to schedule the script to run weekly:
-
-`0 0 * * 0 /path/to/backup_script.sh`
-
-This cron schedule means the script will run every Sunday at midnight (0 minutes, 0 hours).
-
-Make sure to replace `/path/to/backup_script.sh` with the actual path where you saved the script.
-
-With this setup, your Raspberry Pi will automatically perform a weekly backup to your external SSD at the scheduled time, and the log of the backup operation will be saved to the specified log file.
 
 ##### Prevent Auto-Sleep
 
@@ -266,6 +44,8 @@ Explanation of the job:
 
 The command `ping -c 1 <router_ip_address> >/dev/null 2>&1` pings the router once (`-c 1`) count = 1 and redirects the output to `/dev/null` to suppress any output. This command then runs every 3 hours as per the cron schedule.
 
+## System Infos and Diagnostics
+
 ##### Temperature Management
 
 Display: Ubuntu Server `/sys/class/thermal/thermal_zone0$` cat temp --> shows in centigrade
@@ -283,8 +63,44 @@ You could create a script to read this centigrade value regularly and use as you
 also: `sar -n DEV 30 2`
 
 
+##### Change hostname
 
-#### Log-Files
+You may want to change the hostname for identification purposes so that it fits a naming scheme. 
+
+The command `hostnamectl`displays the current hostname configuration in detail. 
+
+You can change it the command `hostnamectl set-hostname new-hostname`
+
+Also update the "pretty" hostname using `hostnamectl set-hostname "new-hostname" --pretty` alongside so that this matches and is consistent. This is presented to the user only but makes it clean and concise. 
+
+From here on, `reboot` and verify again with `hostnamectl` . 
+
+##### Uptime Tracking
+
+You may want to track your systems uptime (how long is/was it running before crash). 
+
+By adding the below into your crontab you can track this. This will runn every hour and write the `uptime` command output into the file uptime_log.txt.
+
+`0 * * * * uptime >> /path/to/uptime_log.txt`
+
+> [!TIP]  
+> Make sure to invoke the crontab as `sudo crontab -e`. Otherwise you will edit the USERs crontab. 
+
+Check if it worked by running `sudo crontab -u root -l` to list the ACTIVE cron jobs. 
+
+##### Bluetooth
+
+Start and stop the module as follows (power optimization): 
+```
+sudo systemctl status bluetooth
+sudo systemctl stop bluetooth
+sudo systemctl disable bluetooth
+```
+
+## System Performance Tuning
+
+
+## Log Files
 
 In your setup and configs you will be doing a lot of troubleshooting and digging into the system. As such it is key to "**Know your Logs!**"
 
@@ -318,475 +134,6 @@ Below a small list of the most important logs and what they do:
   - `tail -n 15` will show you the last 15 log entries, conversely `head -n 15` the first 15 entries.
   - `tail -f` will "follow" and keep printing the new entries.
 
-
- 
-#### Encryption 
-
-##### Local File Encryption via GnuPG
-
-1. Generate Keys via `gpg --full-generate-key`
-2. encrypt the file as follow `gpg -se -r username FILE`
-3. decrypt `gpg -se -r username FILE` then `>` into another doc
-
-##### Full Disk Encryption via LUKS
-
-> [!WARNING]
-> During initial setup ALL your data will be lost!
-> 
-> LUKS or other Full-Disk-Encryption can have severe performance impacts. 
-
-Ask whether this is really needed for your case (Raspberry or Server). 
-
-Process for setup: 
-
-*To be completed...*
-
-##### Encrypted / Secure file transfer via SSH
-
-You will occasionally transfer data, via machines. For this you can use Secure Copy Protocol (SCP) which opens an encrypted tunnel and then copies (as in `cp`) the data. 
-
-Syntax is `scp + source + target` so assuming you have the SSH Keys set up already an example would be: 
-
-`scp user@123.123.123.123:/path/to/myfile.txt /home/user/Downloads/` 
-
-
-
-> [!WARNING]
-> Avoid FTP protocol at all costs: see below explanation.  
-
-FTP was not designed with security in mind. It is widely regarded as an insecure protocol because it uses clear-text usernames and passwords for authentication and lacks encryption. Consequently, data transmitted via FTP is susceptible to sniffing, spoofing, and brute force attacks, among other basic attack methods.
-
-
-##### crontab
-
-crontab allows for planned execution of commands and scripts. 
-
-Example: 
-
-`30 1 * * * /path/to/command` means run /path/to/command at 1:30 AM every day
-
-`0 15 * * * /path/to/command` means run /path/to/command every day at 3:00 PM
-
-`0 16 * * 5 /path/to/command` means run /path/to/command every Friday at 4:00 PM
-
-Reminder: 
-
-- A script needs to be made **executable** with command `chmod +x script.sh`
-
-- Asterisk `*` means "every possible value" Example `month = *` means the command will run every month
-
-- In principle you can save these scripts everywhere. However, there are cron-designated folders located on the system with naming scheme such as `cron.daily` and `cron.weekly`. Save your scripts there as best practice! Make sure the folder and script are executable and that running the folder or script is actually in the cron job. 
-
-```
-first number = minutes.
-The second number = hours (24 hour format).
-The third number = days of the month.
-The fourth number = months.
-The fifth number = days of the week.
-```
-
-Tip on timestamps and crontab:
-
-For occasions where you will `echo` something with the crontab and you need timestamps you can refer to below commands. 
-
--YYYY-MM-DD	= `date -I`	
-
--YYYY-MM-DD_hh:mm:ss	= `date +%F_%T`	
-
--YYYYMMSShhmmssnnnnnnnnn (nanoseconds) = `date +%Y%m%d%H%M%S%N`
-
-
-#### User Management
-
-##### User deletion incl. homefolder
-
-Use `cat /etc/passwd | cut -d: -f1`
-
-**Explanation**
-
--cat: Displays the contents of a file.
-
--/etc/passwd: Path of the passwd file that contains user information.
-
--Pipe(|): Redirects the output of one command into another.
-
--cut: Extracts parts of lines from a file or piped data.
-
--d:: Specifies colon (“:”) as a delimiter.
-
--f1: Specifies a field. Here number 1 means the first field.
-
-Now: `sudo deluser --remove-home myuser`
-
-##### chmod and chown 
-
-Let's say we have example-file and directory below: 
-
--File: `-rw-rw-r-- 1 user group 1.2K Apr 25 22:18 travelItaly.txt`
-
--Directory `drwxrwxr-x  2 user group 4.0K Apr 26 22:15 exampleItaly`
-
-File Type `d`	User `rwx`	Group	`rwx` Global `r-x`
-
-**chmod** 
-
-The command `chmod` stands for change mode and allows to change the rights of a file. 
-
-Basic Syntax would be `chmod WHO[+,-,=]PERMISSIONS FILENAME`
-
-Whereby `WHO` could be
-```
-u	= user
-g	= group
-o	= others
-a	= all
-```
-
-so in our example to make the file travelItaly.txt readable for **all** we could write `chmod a+rwx travelItaly.txt `
-
-Result: 
-`-rwxrwxrwx  1 user group   10 Apr 26 22:06 travelItaly.txt`
-
-> [!TIP]
-> Using Octal Notation is **much** faster.
-
-```
-Binary	Octal	Permission
-000	0	—
-001	1	–x
-010	2	-w-
-011	3	-wx
-100	4	r–
-101	5	r-x
-110	6	rw-
-111	7	rwx
-
-Example: chmod 600 = (rw-------)
-Example: chmod 664 = (rw-rw-r--)
-Example: chmod 777 = (rwxrwxrwx)
-```
-
-
-**chown** 
-
-The command `chown` stands for change owner and allows to change the owner and group of a file.
-
-Syntax is `chown USER FILE` whereby `USER` is the **new** user of the file. To assign the group as well use `chown USER:GROUP FILE`
-
-
-
-#### Misc Controlls CLI
-
-##### pipe, grep, sort
-
-- The pipe command invoked by using `|` redirects output from one command to another for further processing. Example command `cat greptestfile.txt | grep "World"` Will read `cat` a textfile and then "pipe" `|`the file to `grep` to search for "World" and then display the line. 
-
-- The `grep` command allows for searching text and strings and is **case-sensitive**.
-
-- The `sort` command can sort a given file content alphabetically (default) or as specified per argument. Syntax `sort filename`
-
-#### Mail Setup
-
-There will be cases where you'll want automatic reminders sent based on system-events or similiar. 
-
-Example: CPU Temperature exceeds 75 Degrees -> Send mail to myself.
-
-Prerequisites: 
-
-1. **Separate** G-Mail Account. Do not risk your Main Account for a small DIY project, always assume the worst case and segregate wherever possible! The Account needs to have 2FA enabled. If you don't want to use your phone number you can use the Authenticator App (MS or Google Auth). 
-
-2. App-password  **or** actual mail account password (not suggested: if this PW leaks your account is open!) Also GMAIL does not support this anymore by end of 2024. Switch to App-password if possible. That way the possible damaged is limited to only the App that uses it. Create passwords per App and do not use interchangable! Again: segregate where possible! 
-  
-3. `apt-get install ssmtp mailutils` provides the appropriate software. 
-
-4. Your mail address and app-password are entered in the ssmtp config file `/etc/ssmtp/ssmtp.conf` and revaliases file `/etc/ssmtp/revaliases`. Note that in order to edit you may need to temporary change the access rights of both the directory and the folder via `chmod 777` and then back again with `chmod 640`. I had to keep the folder at `chmod 777` to keep it working. The files were ok with `chmod 640`. 
-
-5. Important: The App-Password is one string (even though google separates it). Therefore: `abcd defg abdd defg` becomes `abcdefgabcdefg` in the config file. 
-
-6. You find your hostname by just using the `hostname`command. 
-
-**Config File Setup ssmtp.conf**
-
-```
-# Config file for sSMTP sendmail
-#
-# The person who gets all mail for userids < 1000
-# Make this empty to disable rewriting.
-root=username@gmail.com
-
-TLS_CA_FILE=/etc/pki/tls/certs/ca-bundle.crt
-
-# The place where the mail goes. The actual machine name is required no 
-# MX records are consulted. Commonly mailhosts are named mail.domain.com
-mailhub=smtp.gmail.com:587
-
-# Where will the mail seem to come from?
-rewriteDomain=gmail.com
-
-# The full hostname
-hostname=HOSTNAMEOFYOURSYSTEM
-
-# Are users allowed to set their own From: address?
-# YES - Allow the user to specify their own From: address
-# NO - Use the system generated From: address
-FromLineOverride=YES
-
-AuthUser=gmailusername
-AuthPass=APP-Password
-UseTLS=Yes
-UseSTARTTLS=YES
-```
-
-Revaliases File Setup revaliases
-
-```
-# sSMTP aliases
-# 
-# Format:	local_account:outgoing_address:mailhub
-#
-# Example: root:your_login@your.domain:mailhub.your.domain[:port]
-# where [:port] is an optional port number that defaults to 25.
-root:username@gmail.com:smtp.gmail.com:587
-localuser:username@gmail.com:smtp.gmail.com:587
-www-data:username@gmail.com:smtp.gmail.com:587
-```
-
-> [!TIP]
-> If possible always segregate! Set up a Relay address so that your MAIN address is not visible to any intercepting/malicious traffic. Example setup : Rasbperry Mail -> Relay Mail (ie. SimpleLogin) -> MAIN Address.
-
-Testing: To test your configuration setup, simply send a mail via `mail -s "Subject" RECIPIENT` followed by the Body of the Message, then press `ctrl + D`to send. 
-
-Of course this makes a lot more sense in a `cron-job` context that runs daily/weekly/monthly. 
-
-**Examples**
-
--Failed Login Attempts: Include information about failed login attempts from the authentication log `(/var/log/auth.log)`. Can help you identify potential brute-force attacks or unauthorized access attempts.
-
--SSH Sessions: Monitor SSH sessions for any unusual activity, such as multiple sessions from the same IP address or connections from unfamiliar locations.
-
--System Resource Usage: Include information about CPU (temp), memory, and disk usage to identify any abnormal spikes or resource exhaustion.
-
--Network Traffic: Monitor network traffic to detect any unusual or suspicious patterns, such as a sudden increase in traffic or connections to known malicious IPs.
-
--System Updates: Check for available system updates and include information about pending updates or security patches that need to be applied.
-
--File Integrity: Perform periodic checks to ensure the integrity of critical system files and configurations. Unexpected changes could indicate a compromise. Be creative with this one ;) 
-
--Backup Status: Include information about the status of your system backups to ensure that critical data is being properly backed up and can be restored in case of a security incident.
-
--User Account Management: Monitor user account activity, such as new account creations or changes to user privileges, to detect any unauthorized changes.
-
--System Logs Analysis: Analyze various system logs, including application logs and web server logs, for any suspicious activities or anomalies. You could `grep`for certain keywords and let the appropiate lines be mailed to you. 
-
-###### Daily security-report cron
-
-Add below to the cron job
-
-```
-0 0 * * * grep 'Accepted\|Failed' /path/to/auth.file /path/to/fail2ban.log /var/log/auth.log /var/log/syslog > /path/to/outputfile
-```
-
-> [!CAUTION]
-> There is a security risk transmitting this unencrypted. See below how to mitigate.
-
-Transmitting these log entries unencrypted is a risk. If the logs are intercepted during transmission, an attacker could gain information about your system's users and their activities. 
-
-To mitigate this risk, you could:
-
-- Use secure, encrypted protocols for transmission (like SCP, SFTP, or HTTPS).
-
-- Encrypt the log files before transmission, using tools like `gpg`.
-
-- Only transmit the logs over networks you trust.(But still, be careful - better to encrypt) 
-
-
-###### Daily system-report cron 
-
-It would make sense to receive a daily status report of how the system is doing (include all possible sensor readings etc.) . Such is the purpose of below report 
-
-```
-#!/bin/bash
-
-# Run the commands
-OUTPUT=$(uptime && vcgencmd measure_temp && vcgencmd get_throttled && df -TH && free -h && ss -to state established && ss -tulnp)
-
-# Send the output via email
-echo "$OUTPUT" | mail -s "Daily Report" RECIPIENT
-```
-Save this script to a file named `daily_report.sh` then make it executable with `chmod +x daily_report.sh`.
-
-Then add this script to the daily cron job. Open the crontab file with `crontab -e` and add the following line:
-
-```
-0 0 * * * /path/to/daily_report.sh
-```
-
-This script will run every day at midnight. Replace `/path/to/` with the actual path to the `daily_report.sh` script and `RECIPIENT` with the actual email address.
-
-Note that you need to have the `mail` command installed and properly configured (also in this guide) to send emails. As far as I know, `vcgencmd` is specific to Raspberry Pi devices, so make sure you're running this on a Raspberry Pi, or remove those lines if you're not. 
-
-Always test your script manually before adding it to cron to make sure it works as expected: 
-
-`cd` into the place where you saved the script. Run it directly with the command `./daily_report.sh`. 
-
-Note that `./` needs to preceed the script name. 
-
-
-
-## Networking 
-
-### IP Addresses 
-
-### Subnetting 
-
-### VLAN Setup 
-
-> [!CAUTION]
-> On the Topic of VLANS: Consider all caveats and ask whether this is really necessary or if there is no workaround. The cost (monetary and time) to setup and maintain are really high.
-
-###### Tagged
-
-###### Untagged
-
-###### Trunks
-
-
-
-### pfsense Setup 
-
-## Proxmox Setup
-
-#### Host Security
-
-1. **Cluster Isolation**:
-   - Ensure that the Proxmox cluster is **not reachable from outside** the trusted network.
-   - Implement network segmentation to prevent unauthorized access.
-
-2. **Fail2Ban with Monitoring and Email Alerts**:
-   - Set up **Fail2Ban** to monitor and block suspicious login attempts.
-   - Configure email alerts for security events.
-
-3. **Host Encryption**:
-   - Encrypt the Proxmox hosts using **LUKS (Linux Unified Key Setup)** full disk encryption (FDE).
-   - This protects data at rest and prevents unauthorized access to the host.
-
-4. **Encrypted Swap**:
-   - Enable swap encryption to secure sensitive data in memory.
-
-5. **IP-Based Access Control**:
-   - Restrict access to the Proxmox hosts based on IP addresses.
-   - Whitelist trusted IPs and block unauthorized ones.
-
-6. **Firewall Protection**:
-   - Place the Proxmox hosts behind a **Pfsense Firewall** for additional security.
-   - Configure firewall rules to allow only necessary traffic.
-
-7. **Two-Factor Authentication (2FA)**:
-   - Enforce 2FA for each user accessing the Proxmox hosts.
-   - This adds an extra layer of authentication.
-
-#### VM Security
-
-1. **VLAN Segmentation**:
-   - Assign a separate VLAN for each critical VM.
-   - Group non-critical VMs into application-specific VLANs.
-
-2. **Fail2Ban for VMs**:
-   - Implement **Fail2Ban** within VMs to protect against brute-force attacks.
-   - Monitor and receive email alerts for suspicious activity.
-
-3. **VM Encryption**:
-   - Encrypt VMs to safeguard their data.
-   - Use encryption mechanisms available within the VMs.
-
-4. **Network Storage Isolation**:
-   - VMs should not have direct access to network storage.
-   - Only the Proxmox host should provide storage to VMs.
-
-5. **Custom Ports**:
-   - Configure custom ports for VM services.
-   - Avoid using default ports to reduce exposure.
-
-6. **Firewall for VMs**:
-   - Place VMs behind a **Pfsense Firewall** to filter traffic.
-   - Apply access control rules to allow necessary communication.
-
-7. **Swap Encryption for VMs**:
-   - Enable swap encryption within VMs to protect sensitive data.
-
-8. **Service Publication via HAProxy**:
-   - Publish services through **HAProxy** with an additional layer of access control.
-   - HAProxy can handle load balancing and provide security features.
-
-####Backup Security
-
-1. **Encrypted Backups**:
-   - Ensure that backups are always encrypted.
-   - Use encryption mechanisms provided by backup tools.
-
-2. **Off-Site Storage**:
-   - Store backups off-site, away from the primary location.
-   - Prevent data loss due to local disasters.
-
-3. **Cold Storage Backups**:
-   - Perform weekly cold storage backups.
-   - Cold storage ensures data availability even if the live system fails.
-
-4. **Protection Against Changes**:
-   - Protect off-site backups against unauthorized changes.
-   - Implement access controls and integrity checks.
-  
-
-##### SSL Certificate via Let's Encrypt
-
-Problem: You don’t want to see certificate warnings all the time. How do you get the green lock locally?
-
-Solution: Generate your own certificate, either self-signed or signed by a local root, and trust it in your operating system’s trust store. Then use that certificate in your local web server. See below for details. You can actually make your own certificates without help from a CA. Only difference is that certificates you make yourself **won’t be trusted by anyone else** (which makes sense, no CA involved). **For local development, that’s fine.**
-
-A way to generate a private key and self-signed certificate for localhost is with this command:
-
-```
-openssl req -x509 -out localhost.crt -keyout localhost.key \
-  -newkey rsa:2048 -nodes -sha256 \
-  -subj '/CN=localhost' -extensions EXT -config <( \
-   printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
-```
- 
-**Explanation**: 
-
-- `openssl req`: This is the command to create and process certificate requests in PKCS#10 format.
-
-- `-x509`: This option specifies that a self-signed certificate is to be generated.
-
-- `-out localhost.crt`: This designates the output filename for the certificate.
-
-- `-keyout localhost.key`: This specifies the output filename for the private key.
-
-- `-newkey rsa:2048`: This creates a new certificate request and a new private key. `rsa:2048` indicates an RSA key of 2048 bits.
-
-- `-nodes`: This tells OpenSSL to not encrypt the private key, meaning "no DES".
-
-- `-sha256`: This specifies the use of the SHA-256 hash algorithm.
-
-- `-subj '/CN=localhost'`: This sets the subject field for the certificate to have a common name (CN) of 'localhost'.
-
-- `-extensions EXT`: This specifies the extensions to be added to the certificate.
-
-- `-config <(...)`: This is a shell feature called process substitution, which allows the output of a command to be used as a file. The `printf` command inside generates the necessary configuration on the fly.
-
-The `printf` command generates a minimal configuration file with the following contents:
-
-- `[dn]` and `CN=localhost` set the distinguished name to 'localhost'.
-
-- `[req]` and `distinguished_name = dn` tell the request to use the distinguished name specified earlier.
-
-- `[EXT]` defines a section for extensions, where `subjectAltName=DNS:localhost` adds an alternative name for the certificate, which is important for matching the certificate to the domain name.
-
-- `keyUsage=digitalSignature` restricts the key's usage to digital signatures.
-
-- `extendedKeyUsage=serverAuth` indicates that the key is used for server authentication.
-
-Of course: For production environments, it's recommended to use certificates issued by a trusted Certificate Authority (CA) like Lets Encrypt.
 
 ##### Setting up a rsyslog server 
 
@@ -884,7 +231,9 @@ uucp,news.crit                                /var/log/spooler
 local7.*                                      /var/log/boot.log
 
 ```
+
 By the way: 
+
 ```
 authpriv – non-system authorization messages
 
@@ -901,7 +250,327 @@ Like many things, this works also via TLS(SSL) Certificate. Therefore this is ne
 To be completed with info from `https://www.rsyslog.com/doc/tutorials/tls.html`
 
 
-### SSH Hardening
+
+## crontab
+
+crontab allows for planned execution of commands and scripts. 
+
+Example: 
+
+`30 1 * * * /path/to/command` means run /path/to/command at 1:30 AM every day
+
+`0 15 * * * /path/to/command` means run /path/to/command every day at 3:00 PM
+
+`0 16 * * 5 /path/to/command` means run /path/to/command every Friday at 4:00 PM
+
+Reminder: 
+
+- A script needs to be made **executable** with command `chmod +x script.sh`
+
+- Asterisk `*` means "every possible value" Example `month = *` means the command will run every month
+
+- In principle you can save these scripts everywhere. However, there are cron-designated folders located on the system with naming scheme such as `cron.daily` and `cron.weekly`. Save your scripts there as best practice! Make sure the folder and script are executable and that running the folder or script is actually in the cron job. 
+
+```
+first number = minutes.
+The second number = hours (24 hour format).
+The third number = days of the month.
+The fourth number = months.
+The fifth number = days of the week.
+```
+
+Tip on timestamps and crontab:
+
+For occasions where you will `echo` something with the crontab and you need timestamps you can refer to below commands. 
+
+-YYYY-MM-DD	= `date -I`	
+
+-YYYY-MM-DD_hh:mm:ss	= `date +%F_%T`	
+
+-YYYYMMSShhmmssnnnnnnnnn (nanoseconds) = `date +%Y%m%d%H%M%S%N`
+
+
+## Misc Controls CLI
+
+##### pipe, grep, sort
+
+- The pipe command invoked by using `|` redirects output from one command to another for further processing. Example command `cat greptestfile.txt | grep "World"` Will read `cat` a textfile and then "pipe" `|`the file to `grep` to search for "World" and then display the line. 
+
+- The `grep` command allows for searching text and strings and is **case-sensitive**.
+
+- The `sort` command can sort a given file content alphabetically (default) or as specified per argument. Syntax `sort filename`
+
+# Storage and Filesystems
+
+## General Mounting Knowledge
+
+Before you proceed with any Backup/External-Drive related task it essential to know how to mount, format and use drives via the command line. The general steps outlined follow the procedure of creating a partition, formating the drive, setting up the mount points and then actually using it in the following sub-chapters (backups etc.). 
+
+First, get an overview of the actual drives. Do this with the command `sudo lshw -C disk` lshw=Hardware-Listener Class "Disk". Take note of the `logical name`. In my case this is ` /dev/mmcblk0`. This is used throughout the whole mounting,formating, partinioning and using process.
+
+
+**Command Line Partitioning**  
+
+We will use the tool `parted` for this purpose. 
+
+Start parted with `sudo parted LOGICAL NAME`
+
+create a new disklabel `(parted) mklabel gpt` --> Note GPT here means GPT (GUID Partition Table) which allows certain functionalities that standard MBR would not (large, multiple partitions). 
+
+Then we need to set the default unit on this drive to either Terrabyte or Gigabyte `(parted) unit TB`
+
+Create one partition occupying all the space from 0 to 2 terrabytes with command `parted LOGICALNAME unit TB mkpart primary ext4 0 2`
+
+Breakdown: 
+
+```
+Starts the parted utility on the specified disk (/dev/sdX).
+Sets the unit to terabytes (TB) for all subsequent operations within this parted session.
+Creates a primary partition intended for the ext4 file system.
+The new partition starts at 0 TB (the very beginning of the disk).
+The partition ends at 2 TB, making it a 2 terabyte partition.
+```
+
+Check, verify and then quit `parted` with `(parted) print` followed by `(parted) quit`
+
+*Alternatively you can use `fdisk`* 
+
+Start with `sudo fdisk LOGICALNAME`. a selection will appear. choose `n`= add a new partition. Then select `p   primary partition (1-4)` then enter 1 (will be the only partition) 
+
+
+**Command Line Formatting**  
+
+ASSUMPTION: `LOGICALNAME = /dev/sdb1`
+
+`sudo mkfs -t ext4 /dev/sdb1`  Note: ext4 is ubuntu/debians standard filesystem. 
+`sudo mkfs -t fat32 /dev/sdb1` Note: use this for interoperability with windows. 
+
+
+**Mounting the Drive**  
+
+> [!IMPORTANT]
+> Create a mount point before mounting!
+
+**After (!)** partitioning and formatting choose a mount point. This will be the location from which the drive is accessed. Ubuntu Default is "/media". Ubuntu suggests using "/media/mynewdrive"
+
+Create the directory with `sudo mkdir /media/mynewdrive`
+
+Now to set up automatic mount at boot edit the `fstab`file (file systems table -> lists the filesystems and directories)
+
+Use the command `sudo nano -Bw /etc/fstab`
+
+> [!WARNING]
+> Always use `-Bw`. This will create a file backup. 
+
+Add this line to the end (for ext4 file system) `/dev/sdb1    /media/mynewdrive   ext4    defaults     0        2`
+
+Add this line to the end (for fat32 file system): `/dev/sdb1    /media/mynewdrive   vfat    defaults     0        2`
+
+After you are done, simply reboot for the changes to take effect. 
+
+## Backup Management
+
+With below setup, your Raspberry Pi will automatically perform a weekly backup to your external SSD at the scheduled time, and the log of the backup operation will be saved to the specified log file.
+
+```
+#!/bin/bash
+# Source directory (Raspberry Pi filesystem)
+SOURCE="/"
+# Destination directory (external SSD mount point)
+DESTINATION="/mnt/external_ssd"
+# Log file path
+LOG_FILE="/var/log/backup.log"
+# Execute rsync command
+rsync -av --delete --exclude={"/dev/*","/proc/*","/sys/*","/tmp/*","/run/*","/mnt/*","/media/*","/lost+found"} $SOURCE $DESTINATION >> $LOG_FILE 2>&1
+```
+
+`SOURCE`: Specifies the root directory of your Raspberry Pi's filesystem. Change this if your filesystem is located elsewhere.
+
+`DESTINATION`: Specifies the mount point of your external SSD. Adjust this to match the actual mount point of your SSD.
+
+`LOG_FILE`: Specifies the path where the log of the backup operation will be saved.
+
+`rsync`: Performs the actual synchronization. Here's a breakdown of the options used:
+
+`-a`: Archive mode, preserves permissions, ownership, timestamps, etc.
+
+`-v`: Verbose mode, shows the files being copied.
+
+`--delete`: Deletes files from the destination that no longer exist in the source (ensures an exact mirror).
+
+`--exclude`: Excludes certain directories from being copied. This list includes system directories that are not necessary for a backup.
+
+To set this up as a weekly cron job use the following steps:
+
+Save the script to a file, for example, `backup_script.sh`.
+
+Make the script executable with the command `chmod +x backup_script.sh`
+
+Open your crontab file with the command: crontab -e.
+
+Add the following line to schedule the script to run weekly:
+
+`0 0 * * 0 /path/to/backup_script.sh`
+
+This cron schedule means the script will run every Sunday at midnight (0 minutes, 0 hours).
+
+Make sure to replace `/path/to/backup_script.sh` with the actual path where you saved the script.
+
+
+## Bootable SD Backup
+
+You can backup directly from the running RasPi onto a SD Card and then boot from there in case the other one fails. 
+
+1.USB SD card device will be located under `/dev`
+
+2.`sda` will be the card
+
+3.`sudo dd bs=4M if=/dev/mmcblk0 of=/dev/sda`
+
+Commands Explained:
+
+`dd` command reads input from a file or a device, and writes it to another file or device
+
+`bs=4M` sets our block size to 4 megabytes
+
+`if=/dev/mmcblk0` sets our input file
+
+`of=/dev/sda` sets our output file
+
+Note: 
+If you listed the devices in the `/dev` folder you probably noticed other partitions named `mmcblk0p1` and `mmcblk0p2`. You want the **entire** SD card backed-up and that is why you need to reference `mmcblk0`. The same goes for the destination `sda` as you may have seen `sda1` and `sda2`. 
+
+
+## HardDrive Management
+
+*Chaper to be completed...*
+
+
+# Security
+
+## Encryption
+
+##### Local File Encryption via GnuPG
+
+1. Generate Keys via `gpg --full-generate-key`
+2. encrypt the file as follow `gpg -se -r username FILE`
+3. decrypt `gpg -se -r username FILE` then `>` into another doc
+
+##### Full Disk Encryption via LUKS
+
+> [!WARNING]
+> During initial setup ALL your data will be lost!
+> 
+> LUKS or other Full-Disk-Encryption can have severe performance impacts. 
+
+Ask whether this is really needed for your case (Raspberry or Server). 
+
+Process for setup: 
+
+*To be completed...*
+
+##### Encrypted / Secure file transfer via SSH
+
+You will occasionally transfer data, via machines. For this you can use Secure Copy Protocol (SCP) which opens an encrypted tunnel and then copies (as in `cp`) the data. 
+
+Syntax is `scp + source + target` so assuming you have the SSH Keys set up already an example would be: 
+
+`scp user@123.123.123.123:/path/to/myfile.txt /home/user/Downloads/` 
+
+
+
+> [!WARNING]
+> Avoid FTP protocol at all costs: see below explanation.  
+
+FTP was not designed with security in mind. It is widely regarded as an insecure protocol because it uses clear-text usernames and passwords for authentication and lacks encryption. Consequently, data transmitted via FTP is susceptible to sniffing, spoofing, and brute force attacks, among other basic attack methods.
+
+
+
+## User Management
+
+##### User deletion incl. homefolder
+
+Use `cat /etc/passwd | cut -d: -f1`
+
+**Explanation**
+
+-cat: Displays the contents of a file.
+
+-/etc/passwd: Path of the passwd file that contains user information.
+
+-Pipe(|): Redirects the output of one command into another.
+
+-cut: Extracts parts of lines from a file or piped data.
+
+-d:: Specifies colon (“:”) as a delimiter.
+
+-f1: Specifies a field. Here number 1 means the first field.
+
+Now: `sudo deluser --remove-home myuser`
+
+##### chmod and chown 
+
+Let's say we have example-file and directory below: 
+
+-File: `-rw-rw-r-- 1 user group 1.2K Apr 25 22:18 travelItaly.txt`
+
+-Directory `drwxrwxr-x  2 user group 4.0K Apr 26 22:15 exampleItaly`
+
+File Type `d`	User `rwx`	Group	`rwx` Global `r-x`
+
+**chmod** 
+
+The command `chmod` stands for change mode and allows to change the rights of a file. 
+
+Basic Syntax would be `chmod WHO[+,-,=]PERMISSIONS FILENAME`
+
+Whereby `WHO` could be
+```
+u	= user
+g	= group
+o	= others
+a	= all
+```
+
+so in our example to make the file travelItaly.txt readable for **all** we could write `chmod a+rwx travelItaly.txt `
+
+Result: 
+`-rwxrwxrwx  1 user group   10 Apr 26 22:06 travelItaly.txt`
+
+> [!TIP]
+> Using Octal Notation is **much** faster.
+
+```
+Binary	Octal	Permission
+000	0	—
+001	1	–x
+010	2	-w-
+011	3	-wx
+100	4	r–
+101	5	r-x
+110	6	rw-
+111	7	rwx
+
+Example: chmod 600 = (rw-------)
+Example: chmod 664 = (rw-rw-r--)
+Example: chmod 777 = (rwxrwxrwx)
+```
+
+
+**chown** 
+
+The command `chown` stands for change owner and allows to change the owner and group of a file.
+
+Syntax is `chown USER FILE` whereby `USER` is the **new** user of the file. To assign the group as well use `chown USER:GROUP FILE`
+
+
+
+## Host Security
+
+*Chaper to be completed...*
+
+
+## SSH Hardening
 
 Note: Any SSH configuration files are located at `/etc/ssh/sshd_config.`
 
@@ -975,10 +644,12 @@ If you want to make any changes for any jail (or for all the jail) edit the `jai
 How does fail2ban work in the context of hardening: 
 
 You can use systemd commands to start and enable Fail2Ban on your Linux server:
+
 ```
 systemctl start fail2ban
 systemctl enable fail2ban
 ```
+
 Once Fail2Ban is enabled, you can see the status and the active jails with fail2ban-client command:
 
 `fail2ban-client status`
@@ -1187,6 +858,328 @@ You can see all the parameters of your SSH server using the command `sshd -T`
 This way, you can easily see if you need to change any parameter to enhance the security of the SSH server. Also remember to keep the SSH install and system updated regularly.
 
 
+# Networking
+
+## Network Basics
+
+*Chaper to be completed...*
+
+## VLAN Setup
+
+> [!CAUTION]
+> On the Topic of VLANS: Consider all caveats and ask whether this is really necessary or if there is no workaround. The cost (monetary and time) to setup and maintain are really high.
+
+## Networking Tools and Commands
+
+*Chaper to be completed...*
+
+
+# Server Setup and Management
+
+## pfsense Setup
+
+
+## Proxmox Setup
+
+
+### Proxmox Security Tangent
+
+##### Host Security
+
+1. **Cluster Isolation**:
+   - Ensure that the Proxmox cluster is **not reachable from outside** the trusted network.
+   - Implement network segmentation to prevent unauthorized access.
+
+2. **Fail2Ban with Monitoring and Email Alerts**:
+   - Set up **Fail2Ban** to monitor and block suspicious login attempts.
+   - Configure email alerts for security events.
+
+3. **Host Encryption**:
+   - Encrypt the Proxmox hosts using **LUKS (Linux Unified Key Setup)** full disk encryption (FDE).
+   - This protects data at rest and prevents unauthorized access to the host.
+
+4. **Encrypted Swap**:
+   - Enable swap encryption to secure sensitive data in memory.
+
+5. **IP-Based Access Control**:
+   - Restrict access to the Proxmox hosts based on IP addresses.
+   - Whitelist trusted IPs and block unauthorized ones.
+
+6. **Firewall Protection**:
+   - Place the Proxmox hosts behind a **Pfsense Firewall** for additional security.
+   - Configure firewall rules to allow only necessary traffic.
+
+7. **Two-Factor Authentication (2FA)**:
+   - Enforce 2FA for each user accessing the Proxmox hosts.
+   - This adds an extra layer of authentication.
+
+##### VM Security
+
+1. **VLAN Segmentation**:
+   - Assign a separate VLAN for each critical VM.
+   - Group non-critical VMs into application-specific VLANs.
+
+2. **Fail2Ban for VMs**:
+   - Implement **Fail2Ban** within VMs to protect against brute-force attacks.
+   - Monitor and receive email alerts for suspicious activity.
+
+3. **VM Encryption**:
+   - Encrypt VMs to safeguard their data.
+   - Use encryption mechanisms available within the VMs.
+
+4. **Network Storage Isolation**:
+   - VMs should not have direct access to network storage.
+   - Only the Proxmox host should provide storage to VMs.
+
+5. **Custom Ports**:
+   - Configure custom ports for VM services.
+   - Avoid using default ports to reduce exposure.
+
+6. **Firewall for VMs**:
+   - Place VMs behind a **Pfsense Firewall** to filter traffic.
+   - Apply access control rules to allow necessary communication.
+
+7. **Swap Encryption for VMs**:
+   - Enable swap encryption within VMs to protect sensitive data.
+
+8. **Service Publication via HAProxy**:
+   - Publish services through **HAProxy** with an additional layer of access control.
+   - HAProxy can handle load balancing and provide security features.
+
+##### Backup Security
+
+1. **Encrypted Backups**:
+   - Ensure that backups are always encrypted.
+   - Use encryption mechanisms provided by backup tools.
+
+2. **Off-Site Storage**:
+   - Store backups off-site, away from the primary location.
+   - Prevent data loss due to local disasters.
+
+3. **Cold Storage Backups**:
+   - Perform weekly cold storage backups.
+   - Cold storage ensures data availability even if the live system fails.
+
+4. **Protection Against Changes**:
+   - Protect off-site backups against unauthorized changes.
+   - Implement access controls and integrity checks.
+  
+
+##### SSL Certificate via Let's Encrypt
+
+Problem: You don’t want to see certificate warnings all the time. How do you get the green lock symbol locally?
+
+Solution: Generate your own certificate, either self-signed or signed by a local root, and trust it in your operating system’s trust store. Then use that certificate in your local web server. See below for details. You can actually make your own certificates without help from a CA. Only difference is that certificates you make yourself **won’t be trusted by anyone else** (which makes sense, no CA involved). **For local development, that’s fine.**
+
+A way to generate a private key and self-signed certificate for localhost is with this command:
+
+```
+openssl req -x509 -out localhost.crt -keyout localhost.key \
+  -newkey rsa:2048 -nodes -sha256 \
+  -subj '/CN=localhost' -extensions EXT -config <( \
+   printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+```
+ 
+**Explanation**: 
+
+- `openssl req`: This is the command to create and process certificate requests in PKCS#10 format.
+
+- `-x509`: This option specifies that a self-signed certificate is to be generated.
+
+- `-out localhost.crt`: This designates the output filename for the certificate.
+
+- `-keyout localhost.key`: This specifies the output filename for the private key.
+
+- `-newkey rsa:2048`: This creates a new certificate request and a new private key. `rsa:2048` indicates an RSA key of 2048 bits.
+
+- `-nodes`: This tells OpenSSL to not encrypt the private key, meaning "no DES".
+
+- `-sha256`: This specifies the use of the SHA-256 hash algorithm.
+
+- `-subj '/CN=localhost'`: This sets the subject field for the certificate to have a common name (CN) of 'localhost'.
+
+- `-extensions EXT`: This specifies the extensions to be added to the certificate.
+
+- `-config <(...)`: This is a shell feature called process substitution, which allows the output of a command to be used as a file. The `printf` command inside generates the necessary configuration on the fly.
+
+The `printf` command generates a minimal configuration file with the following contents:
+
+- `[dn]` and `CN=localhost` set the distinguished name to 'localhost'.
+
+- `[req]` and `distinguished_name = dn` tell the request to use the distinguished name specified earlier.
+
+- `[EXT]` defines a section for extensions, where `subjectAltName=DNS:localhost` adds an alternative name for the certificate, which is important for matching the certificate to the domain name.
+
+- `keyUsage=digitalSignature` restricts the key's usage to digital signatures.
+
+- `extendedKeyUsage=serverAuth` indicates that the key is used for server authentication.
+
+Of course: For production environments, it's recommended to use certificates issued by a trusted Certificate Authority (CA) like Lets Encrypt.
+
+
+## Containerization and Virtualization
+
+*Chapter to be completed...* 
+
+# Additional Topics
+
+## Mail Setup
+
+There will be cases where you'll want automatic reminders sent based on system-events or similiar. 
+
+Example: CPU Temperature exceeds 75 Degrees -> Send mail to myself.
+
+Prerequisites: 
+
+1. **Separate** G-Mail Account. Do not risk your Main Account for a small DIY project, always assume the worst case and segregate wherever possible! The Account needs to have 2FA enabled. If you don't want to use your phone number you can use the Authenticator App (MS or Google Auth). 
+
+2. App-password  **or** actual mail account password (not suggested: if this PW leaks your account is open!) Also GMAIL does not support this anymore by end of 2024. Switch to App-password if possible. That way the possible damaged is limited to only the App that uses it. Create passwords per App and do not use interchangable! Again: segregate where possible! 
+  
+3. `apt-get install ssmtp mailutils` provides the appropriate software. 
+
+4. Your mail address and app-password are entered in the ssmtp config file `/etc/ssmtp/ssmtp.conf` and revaliases file `/etc/ssmtp/revaliases`. Note that in order to edit you may need to temporary change the access rights of both the directory and the folder via `chmod 777` and then back again with `chmod 640`. I had to keep the folder at `chmod 777` to keep it working. The files were ok with `chmod 640`. 
+
+5. Important: The App-Password is one string (even though google separates it). Therefore: `abcd defg abdd defg` becomes `abcdefgabcdefg` in the config file. 
+
+6. You find your hostname by just using the `hostname`command. 
+
+**Config File Setup ssmtp.conf**
+
+```
+# Config file for sSMTP sendmail
+#
+# The person who gets all mail for userids < 1000
+# Make this empty to disable rewriting.
+root=username@gmail.com
+
+TLS_CA_FILE=/etc/pki/tls/certs/ca-bundle.crt
+
+# The place where the mail goes. The actual machine name is required no 
+# MX records are consulted. Commonly mailhosts are named mail.domain.com
+mailhub=smtp.gmail.com:587
+
+# Where will the mail seem to come from?
+rewriteDomain=gmail.com
+
+# The full hostname
+hostname=HOSTNAMEOFYOURSYSTEM
+
+# Are users allowed to set their own From: address?
+# YES - Allow the user to specify their own From: address
+# NO - Use the system generated From: address
+FromLineOverride=YES
+
+AuthUser=gmailusername
+AuthPass=APP-Password
+UseTLS=Yes
+UseSTARTTLS=YES
+```
+
+Revaliases File Setup revaliases
+
+```
+# sSMTP aliases
+# 
+# Format:	local_account:outgoing_address:mailhub
+#
+# Example: root:your_login@your.domain:mailhub.your.domain[:port]
+# where [:port] is an optional port number that defaults to 25.
+root:username@gmail.com:smtp.gmail.com:587
+localuser:username@gmail.com:smtp.gmail.com:587
+www-data:username@gmail.com:smtp.gmail.com:587
+```
+
+> [!TIP]
+> If possible always segregate! Set up a Relay address so that your MAIN address is not visible to any intercepting/malicious traffic. Example setup : Rasbperry Mail -> Relay Mail (ie. SimpleLogin) -> MAIN Address.
+
+Testing: To test your configuration setup, simply send a mail via `mail -s "Subject" RECIPIENT` followed by the Body of the Message, then press `ctrl + D`to send. 
+
+Of course this makes a lot more sense in a `cron-job` context that runs daily/weekly/monthly. 
+
+**Examples**
+
+-Failed Login Attempts: Include information about failed login attempts from the authentication log `(/var/log/auth.log)`. Can help you identify potential brute-force attacks or unauthorized access attempts.
+
+-SSH Sessions: Monitor SSH sessions for any unusual activity, such as multiple sessions from the same IP address or connections from unfamiliar locations.
+
+-System Resource Usage: Include information about CPU (temp), memory, and disk usage to identify any abnormal spikes or resource exhaustion.
+
+-Network Traffic: Monitor network traffic to detect any unusual or suspicious patterns, such as a sudden increase in traffic or connections to known malicious IPs.
+
+-System Updates: Check for available system updates and include information about pending updates or security patches that need to be applied.
+
+-File Integrity: Perform periodic checks to ensure the integrity of critical system files and configurations. Unexpected changes could indicate a compromise. Be creative with this one ;) 
+
+-Backup Status: Include information about the status of your system backups to ensure that critical data is being properly backed up and can be restored in case of a security incident.
+
+-User Account Management: Monitor user account activity, such as new account creations or changes to user privileges, to detect any unauthorized changes.
+
+-System Logs Analysis: Analyze various system logs, including application logs and web server logs, for any suspicious activities or anomalies. You could `grep`for certain keywords and let the appropiate lines be mailed to you. 
+
+
+## Daily Reports
+
+##### Daily security-report cron
+
+Add below to the cron job
+
+```
+0 0 * * * grep 'Accepted\|Failed' /path/to/auth.file /path/to/fail2ban.log /var/log/auth.log /var/log/syslog > /path/to/outputfile
+```
+
+> [!CAUTION]
+> There is a security risk transmitting this unencrypted. See below how to mitigate.
+
+Transmitting these log entries unencrypted is a risk. If the logs are intercepted during transmission, an attacker could gain information about your system's users and their activities. 
+
+To mitigate this risk, you could:
+
+- Use secure, encrypted protocols for transmission (like SCP, SFTP, or HTTPS).
+
+- Encrypt the log files before transmission, using tools like `gpg`.
+
+- Only transmit the logs over networks you trust.(But still, be careful - better to encrypt) 
+
+
+##### Daily system-report cron 
+
+It would make sense to receive a daily status report of how the system is doing (include all possible sensor readings etc.) . Such is the purpose of below report 
+
+```
+#!/bin/bash
+
+# Run the commands
+OUTPUT=$(uptime && vcgencmd measure_temp && vcgencmd get_throttled && df -TH && free -h && ss -to state established && ss -tulnp)
+
+# Send the output via email
+echo "$OUTPUT" | mail -s "Daily Report" RECIPIENT
+```
+Save this script to a file named `daily_report.sh` then make it executable with `chmod +x daily_report.sh`.
+
+Then add this script to the daily cron job. Open the crontab file with `crontab -e` and add the following line:
+
+```
+0 0 * * * /path/to/daily_report.sh
+```
+
+This script will run every day at midnight. Replace `/path/to/` with the actual path to the `daily_report.sh` script and `RECIPIENT` with the actual email address.
+
+Note that you need to have the `mail` command installed and properly configured (also in this guide) to send emails. As far as I know, `vcgencmd` is specific to Raspberry Pi devices, so make sure you're running this on a Raspberry Pi, or remove those lines if you're not. 
+
+Always test your script manually before adding it to cron to make sure it works as expected: 
+
+`cd` into the place where you saved the script. Run it directly with the command `./daily_report.sh`. 
+
+Note that `./` needs to preceed the script name. 
+
+
+# Miscellaneous 
+
+
+
+
+
+
 
 
 
@@ -1220,6 +1213,9 @@ This way, you can easily see if you need to change any parameter to enhance the 
 
 > [!CAUTION]
 > 
+> Advises about risks or negative outcomes of certain actions.
+
+ 
 > Advises about risks or negative outcomes of certain actions.
 
 
