@@ -1,11 +1,59 @@
 # HomeLab Best-practices and Guide
 
-This "Guide" should document all knowledge I find useful for setting up, configuring and navigating in a HomeLab Setup (Cybersecurity-Focused) 
-
-*Revised structure to be completed. by end of May.*
-
+This "Guide" should document all knowledge I find useful for setting up, configuring and navigating in a HomeLab Setup (Cybersecurity-Focused). 
 
 **Most important: Have fun doing it!**
+
+*Note: as part of the restructuring May 2024. Some chapters will be empty.* 
+
+# System Management
+
+## General Linux Tips
+## System Infos and Diagnostics
+## System Performance Tuning
+## Log Files
+## crontab
+## Misc Controls CLI
+
+# Storage and Filesystems
+
+## General Mounting Knowledge
+## Backup Management
+## Bootable SD Backup
+## HardDrive Management
+
+# Security
+
+## Encryption
+## User Management
+## Host Security
+## SSH Hardening
+
+# Networking
+
+## Network Basics
+## VLAN Setup
+## Networking Tools and Commands
+
+# Server Setup and Management
+
+## pfsense Setup
+## Proxmox Setup
+## Containerization and Virtualization
+
+# Additional Topics
+
+## Mail Setup
+## Daily Reports
+## Miscellaneous Tips
+
+
+
+
+
+-------------------
+-------------------
+
 
 ## General Linux Tips 
 
