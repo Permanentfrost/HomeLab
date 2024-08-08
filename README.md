@@ -488,6 +488,24 @@ FTP was not designed with security in mind. It is widely regarded as an insecure
 
 ## User Management
 
+##### sudoers file and verification
+
+As you know, Linux uses a `sudoers` file in which it specifically lists the users and groups that are allowed to use the `sudo` command. 
+In case you ever asked yourself *"Who is part of that group?"* and *"Who can actually user the sudo commmand?"* look no further ;-). 
+
+You can make use of the below commands 
+`groups`to list all the groups
+`groups USERNAME` to list all the groups of this user
+`getent group GROUPNAME` to get all member-entries of this group. getent = *get entries*
+
+Example where you can see the USERNAME is member of the sudo group: 
+
+```
+getent group sudo
+sudo:x:27:USERNAME
+```
+
+
 ##### User deletion incl. homefolder
 
 Use `cat /etc/passwd | cut -d: -f1`
