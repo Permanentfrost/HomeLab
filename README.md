@@ -592,7 +592,52 @@ Syntax is `chown USER FILE` whereby `USER` is the **new** user of the file. To a
 
 Note: Any SSH configuration files are located at `/etc/ssh/sshd_config.`
 
-Most of the SSH hardening tips will require editing this config file. It is good practice to back up the original file. After a change you also need to restart the SSH service if you make any changes to the SSH config file.
+Most of the SSH hardening tips will require editing this config file. It is good practice to back up the original file. After a change you also need to restart the SSH service if you make any changes to the SSH config file. 
+
+##### Disabling Root Login 
+
+```
+To prevent direct SSH login as root:
+sudo nano /etc/ssh/sshd_config
+
+Find and modify:
+PermitRootLogin no
+
+Restart SSH:
+sudo systemctl restart ssh
+
+```
+
+##### SSH Login Notification via PAM
+
+```
+Receive an email notification whenever someone logs in via SSH.
+
+Step 1: Create a notification Script
+
+Example: sudo nano /usr/local/bin/ssh_login_notify.sh
+
+Paste this:
+#!/bin/bash
+
+EMAIL="name@domain.com"
+HOSTNAME=$(hostname)
+DATE=$(date '+%Y-%m-%d %H:%M:%S')
+echo -e "SSH Login detected on: $DATE\nHost: $HOSTNAME" | mail -s "SSH Alert" "$EMAIL"
+
+Make it executable:
+sudo chmod +x /usr/local/bin/ssh_login_notify.sh
+
+Step 2: Enable PAM Execution
+sudo nano /etc/pam.d/sshd
+
+Add this at the end:
+session optional pam_exec.so seteuid /usr/local/bin/ssh_login_notify.sh
+
+Step 3: Don't forget to Restart SSH
+sudo systemctl restart ssh
+
+```
 
 ##### Fail2Ban Install Guide
 
