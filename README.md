@@ -620,12 +620,32 @@ Example: sudo nano /usr/local/bin/ssh_login_notify.sh
 Paste this:
 #!/bin/bash
 
-EMAIL="name@domain.com"
-HOSTNAME=$(hostname)
-DATE=$(date '+%Y-%m-%d %H:%M:%S')
-echo -e "SSH Login detected on: $DATE\nHost: $HOSTNAME" | mail -s "SSH Alert" "$EMAIL"
+# Define email recipient
+EMAIL="example@example.com"
 
-Make it executable:
+# Get the timestamp
+DATE=$(date '+%Y-%m-%d %H:%M:%S')
+
+# Determine login or logout based on PAM_TYPE
+if [ "$PAM_TYPE" == "open_session" ]; then
+    EMAIL_SUBJECT="🔐 SSH Login Alert"
+    EMAIL_BODY="An SSH login occurred on: $DATE\n\nThis is an automated notification."
+elif [ "$PAM_TYPE" == "close_session" ]; then
+    EMAIL_SUBJECT="🚪 SSH Logout Alert"
+    EMAIL_BODY="An SSH logout occurred on: $DATE\n\nThis is an automated notification."
+else
+    exit 0
+fi
+
+# Send the email with a retry mechanism
+MAX_RETRIES=5
+for ((i=1; i<=$MAX_RETRIES; i++)); do
+    echo -e "$EMAIL_BODY" | mail -s "$EMAIL_SUBJECT" "$EMAIL" && break
+    echo "Attempt $i failed. Retrying..."
+    sleep 30
+done
+
+Also, make it executable:
 sudo chmod +x /usr/local/bin/ssh_login_notify.sh
 
 Step 2: Enable PAM Execution
